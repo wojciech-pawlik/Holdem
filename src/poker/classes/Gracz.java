@@ -13,7 +13,7 @@ public class Gracz {
         this("", 0, 0);
     }
 
-    public Gracz(String Nickname, int Zetony, int Miejsce) {
+    Gracz(String Nickname, int Zetony, int Miejsce) {
         this.Nickname = Nickname;
         karta1 = karta2 = new Karta();
         uklad = new Uklad();
@@ -24,11 +24,11 @@ public class Gracz {
         CzyGra = true;
     }
 
-    public void Zaklad() {
+    void Zaklad() {
         Zaklad = Zaklady[0] + Zaklady[1] + Zaklady[2] + Zaklady[3];
     }
 
-    public int DodalDoPuli(int tura) {
+    int DodalDoPuli(int tura) {
         int suma = 0;
         for(int i = 0; i < tura; i++)
             suma += Zaklady[i];
@@ -37,7 +37,7 @@ public class Gracz {
 
     /* ==== GETTERS AND SETTERS ==== */
 
-    public String getNickname() {
+    String getNickname() {
         return Nickname;
     }
 
@@ -46,23 +46,23 @@ public class Gracz {
         this.Nickname = Nickname;
     }
 
-    public Karta getKarta1() {
+    Karta getKarta1() {
         return karta1;
     }
 
-    public void setKarta1(Karta karta1) {
+    void setKarta1(Karta karta1) {
         this.karta1 = karta1;
     }
 
-    public Karta getKarta2() {
+    Karta getKarta2() {
         return karta2;
     }
 
-    public void setKarta2(Karta karta2) {
+    void setKarta2(Karta karta2) {
         this.karta2 = karta2;
     }
 
-    public Uklad getUklad() {
+    Uklad getUklad() {
         return uklad;
     }
 
@@ -71,15 +71,19 @@ public class Gracz {
         this.uklad = uklad;
     }
 
-    public void setUklad(Stol stol) {
+    void setUklad(Stol stol) {
         this.uklad = new Uklad(this, stol);
     }
 
-    public int getZetony() {
+    int getZetony() {
         return Zetony;
     }
 
-    public void setZetony(int Zetony) {
+    void setZetony() {
+        this.setZetony(0);
+    }
+
+    void setZetony(int Zetony) {
         this.Zetony = Zetony;
     }
 
@@ -93,60 +97,60 @@ public class Gracz {
         this.Miejsce = Miejsce;
     }
 
-    public int getZaklad() {
+    int getZaklad() {
         return Zaklad;
     }
 
     @SuppressWarnings("unused")
-    public void setZaklad(int Zaklad) {
+    void setZaklad(int Zaklad) {
         this.Zaklad = Zaklad;
     }
 
-    public boolean isCzyGra() {
+    boolean isCzyGra() {
         return CzyGra;
     }
 
-    public void setCzyGra(boolean CzyGra) {
+    void setCzyGra(boolean CzyGra) {
         this.CzyGra = CzyGra;
     }
 
     //ZAKLADY//
 
     @SuppressWarnings("unused")
-    public int getZaklady() {
+    int getZaklady() {
         int suma = 0;
         for(int i = 0; i < 4; i++) suma += Zaklady[i];
         return suma;
     }
 
-    public int getZaklady(int Tura) {
+    int getZaklady(int Tura) {
         return Zaklady[Tura];
     }
 
     @SuppressWarnings("unused")
-    public void setZaklady(int[] Zaklady) {
+    void setZaklady(int[] Zaklady) {
         this.Zaklady = Zaklady;
     }
 
-    public void setZaklady(int Tura, int Wartosc) {
+    void setZaklady(int Tura, int Wartosc) {
         this.Zaklady[Tura] = Wartosc;
     }
 
-    public void addZaklady(int Tura, int Wartosc) {
+    void addZaklady(int Tura, int Wartosc) {
         this.Zaklady[Tura] += Wartosc;
     }
 
     /////////////////////////////////////////////////////////////////////////////////
 
-    public void addZetony(int Zetony) {
+    void addZetony(int Zetony) {
         this.Zetony += Zetony;
     }
 
-    public void substractZetony(int Zetony) {
+    void substractZetony(int Zetony) {
         this.Zetony -= Zetony;
     }
 
-    public void plusZetony() {
+    void plusZetony() {
         this.Zetony++;
     }
 }

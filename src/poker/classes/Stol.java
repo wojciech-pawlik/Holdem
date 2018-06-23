@@ -170,7 +170,7 @@ public class Stol {
             if(gracze.get(i).getZetony() <= Ante) {
                 Pula += gracze.get(i).getZetony();
                 stacki.add(gracze.get(i).getZetony());
-                gracze.get(i).setZetony(0);
+                gracze.get(i).setZetony();
                 StackiAnte++;
             }
             else {
@@ -267,6 +267,17 @@ public class Stol {
         System.out.println();
     }
 
+    private void WyswietlGraczyPoPodzialePuli() {
+        for(int i = 0; i < LiczbaGraczy; i++) System.out.printf("%s\t\t\t", getGracze(i).getNickname()); System.out.println();
+        for(int i = 0; i < LiczbaGraczy; i++) System.out.printf("%d\t\t\t", getGracze(i).getZetony());
+        System.out.println();
+    }
+
+    private void WyswietlStacki() {
+        System.out.println("WyswietlStacki()");
+        for (int i = 0; i < stacki.size(); i++) System.out.printf("%d: %d\n", i, stacki.get(i));
+    }
+
     public void Rozdaj(Scanner scanner) {
         WyczyscStol();
         PrzesunButton();
@@ -279,7 +290,7 @@ public class Stol {
         for(int i = 0; i < LiczbaGraczy; i++)
             System.out.printf("%s%s\t\t\t", getGracze(i).getKarta1().getNazwa(), getGracze(i).getKarta2().getNazwa());
         System.out.println();
-        if(StackiNormalne == LiczbaGraczy - 1) {		//BEZ ROZGRYWKI PREFLOP (GŁÓWNIE HU)
+        if(StackiNormalne >= LiczbaGraczy - 1) {		//BEZ ROZGRYWKI PREFLOP (GŁÓWNIE HU)
             Dostosuj();
             WyswietlGraczy(); //TEST
             LosujFlop();
@@ -291,7 +302,6 @@ public class Stol {
             System.out.println("Preflop"); //TEST
             Preflop(scanner);
             WyswietlGraczy(); //TEST
-            System.out.println("Dostosuj"); //TEST
             Dostosuj();
             WyswietlGraczy(); //TEST
             if(Foldy == LiczbaGraczy - 1) {                //WSZYSCY SPASOWALI PREFLOP
@@ -352,18 +362,22 @@ public class Stol {
     }
 
     private void Dostosuj() {
+        System.out.println("Dostosuj()");
+
         // <--- Sotrowanie listy stackow ---> //
         sortujStacki();
+        WyswietlStacki();
 
         // <--- Dodawanie puli pobocznych ---> //
         int Suma = 0;
         for(int i = StackiAnte; i < stacki.size(); i++) {
             int k = 0;
             for(int j = 0; j < LiczbaGraczy; j++) {
-                if(getGracze(j).getZaklad() + Ante <= getStacki(i))
+                if(getGracze(j).getZaklad() <= getStacki(i))
                     k += getGracze(j).getZaklad() + Ante;
             }
             k -= Suma;
+            System.out.println("pule.get(k): " + k);
             pule.add(k);
             Suma += k;
         }
@@ -391,7 +405,7 @@ public class Stol {
             ruch = (Button + 3) % LiczbaGraczy;
 
         // === ROZGRYWKA PREFLOP === //
-        while(Foldy + StackiNormalne < LiczbaGraczy - 1 && NrRaise < LiczbaGraczy) {
+        while(Foldy + StackiNormalne < LiczbaGraczy - 1 && NrRaise < LiczbaGraczy - 1) {
             if(getGracze(ruch).isCzyGra() && getGracze(ruch).getZetony() > getGracze(ruch).getZaklad()) {
                 /////---TEST-->///
                 System.out.println("ZAKLAD GRACZA " + getGracze(ruch).getNickname() + ": " + getGracze(ruch).getZaklady(PREFLOP));
@@ -403,34 +417,35 @@ public class Stol {
                 // === WSZYSCY ZLIMPOWALI DO GRACZA NA BB === //
                 if(getGracze(ruch).getZaklady(PREFLOP) == MaxBet) {
                     System.out.printf("Gracz %s: 1 - raise, 2 - check).\n", getGracze(ruch).getNickname());
-                    String k = scanner.next();
-                    if(k.equals("1")) {
-                        System.out.print("Podaj kwote zakladu.");
-                        int b;
-                        if(getGracze(ruch).getZetony() - MaxBet < BB)
-                            b = getGracze(ruch).getZetony() - MaxBet;
+                    String wybor = scanner.next();
+                    switch (wybor) {
+                        case "1":
+                            System.out.print("Podaj kwote zakladu.");
+                            int b;
+                            if(getGracze(ruch).getZetony() - MaxBet < BB)
+                                b = getGracze(ruch).getZetony() - MaxBet;
 
-                        else {
-                            b = scanner.nextInt();
-                            if(b < MaxBet + BB)
-                                b = MaxBet + BB;
-                            else if(b > getGracze(ruch).getZetony())
-                                b = getGracze(ruch).getZetony();
-                        }
+                            else {
+                                b = scanner.nextInt();
+                                if(b < MaxBet + BB)
+                                    b = MaxBet + BB;
+                                else if(b > getGracze(ruch).getZetony())
+                                    b = getGracze(ruch).getZetony();
+                            }
 
+                            addPula(b - getGracze(ruch).getZaklady(PREFLOP));
+                            getGracze(ruch).addZaklady(0, b);
+                            if(getGracze(ruch).getZaklad() == getGracze(ruch).getZetony()) {
+                                StackiNormalne++;
+                                stacki.add(getGracze(ruch).getZetony() + Ante);
+                            }
 
-                        addPula(b - getGracze(ruch).getZaklady(PREFLOP));
-                        getGracze(ruch).addZaklady(0, b);
-                        if(getGracze(ruch).getZaklad() == getGracze(ruch).getZetony()) {
-                            StackiNormalne++;
-                            stacki.add(getGracze(ruch).getZetony() + Ante);
-                        }
+                            resetNrRaise();
+                            break;
 
-                        resetNrRaise();
-                    }
-                    else if(k.equals("2")) {
-                        resetNrRaise();
-                        break;
+                        case "2":
+                            NrRaise++;
+                            break;
                     }
                 }
 
@@ -443,21 +458,27 @@ public class Stol {
 
                         // == RAISE == //
                         case "1":
+                            // a) okreslenie kwoty zakladu
                             int b;
                             // = JESLI GRACZ MA W STACKU MNIEJ NIŻ 1BB WIECEJ NIZ MAXBET = //
                             if (getGracze(ruch).getZaklady(PREFLOP) + getGracze(ruch).getZetony() - MaxBet < BB)
                                 b = getGracze(ruch).getZaklady(PREFLOP) + getGracze(ruch).getZetony() - MaxBet;
+                            // = NORMALNY PRZYPADEK = //
                             else {
+                                System.out.println("Podaj kwote zakladu: ");
                                 b = scanner.nextInt();
                                 if (b < MaxBet + BB)
                                     b = MaxBet + BB;
-                                else if (b > getGracze(ruch).getZaklady(PREFLOP) + getGracze(ruch).getZetony())
-                                    b = getGracze(ruch).getZaklady(PREFLOP) + getGracze(ruch).getZetony();
+                                else if (b > getGracze(ruch).getZetony())
+                                    b = getGracze(ruch).getZetony();
                             }
 
+                            // b) dodanie zakladu do puli
+                            System.out.println("Kwota zakladu: " + b); // TEST
                             addPula(b - getGracze(ruch).getZaklady(PREFLOP));
                             getGracze(ruch).setZaklady(0, b);
 
+                            // c)
                             resetNrRaise();
                             setMaxBet(b);
                             /////---TEST-->///
@@ -472,10 +493,10 @@ public class Stol {
                         // == CALL == //
                         case "2":
                             if (getGracze(ruch).getZetony() <= MaxBet) {
-                                addPula(MaxBet - getGracze(ruch).getZaklady(PREFLOP));
-                                getGracze(ruch).addZaklady(0, getGracze(ruch).getZetony());
+                                addPula(getGracze(ruch).getZetony() - getGracze(ruch).getZaklady(PREFLOP));
+                                getGracze(ruch).addZaklady(0, getGracze(ruch).getZetony() - getGracze(ruch).getZaklad());
                                 StackiNormalne++;
-                                stacki.add(getGracze(ruch).getZaklady(PREFLOP) + Ante);
+                                stacki.add(getGracze(ruch).getZaklady(PREFLOP));
                             } else {
                                 addPula(MaxBet - getGracze(ruch).getZaklady(PREFLOP));
                                 getGracze(ruch).setZaklady(0, MaxBet);
@@ -515,34 +536,12 @@ public class Stol {
         System.out.println("Koniec Preflop");
     }
 
+    // TODO: do naprawy
     private void Postflop(Scanner scanner, int tura) {
         int ruch = (Button + 1) % LiczbaGraczy;
         while(Foldy + StackiNormalne < LiczbaGraczy - 1 && NrRaise < LiczbaGraczy) {
             if(getGracze(ruch).isCzyGra() && getGracze(ruch).getZetony() > getGracze(ruch).getZaklad()) {
-                if(getGracze(ruch).getZaklady(tura) == 0) {
-                    System.out.printf("Gracz %s: 1 - bet, 2 - check).\n", getGracze(ruch).getNickname());
-                    int k = scanner.nextInt();
-                    if(k == 1) {
-                        int b = 0;
-                        if(getGracze(ruch).getZetony() - getGracze(ruch).DodalDoPuli(tura) <= BB)
-                            b = getGracze(ruch).getZetony() - getGracze(ruch).DodalDoPuli(tura);
-
-                        else {
-                            System.out.print("Podaj kwote zakladu.");
-                            while(b < BB || b > getGracze(ruch).getZetony() - getGracze(ruch).DodalDoPuli(tura))
-                                b = scanner.nextInt();
-                        }
-
-                        addPula(b);
-                        getGracze(ruch).setZaklady(tura, b);
-
-                        setMaxBet(getGracze(ruch).getZaklady(tura));
-                        resetNrRaise();
-                    }
-                    else if(k == 2)
-                        NrRaise++;
-                }
-                else if(getGracze(ruch).getZaklady(tura) < MaxBet) {
+                if(getGracze(ruch).getZaklady(tura) < MaxBet) {
                     System.out.printf("Gracz %s: 1 - raise, 2 - call, 3 - fold).\n", getGracze(ruch).getNickname());
                     int k = scanner.nextInt();
                     if(k == 1) {
@@ -574,6 +573,33 @@ public class Stol {
                         NrRaise++;
                     }
                 }
+
+                else if(getGracze(ruch).getZaklady(tura) == 0) {
+                    System.out.printf("Gracz %s: 1 - bet, 2 - check).\n", getGracze(ruch).getNickname());
+                    int k = scanner.nextInt();
+                    if(k == 1) {
+                        int b = 0;
+                        if(getGracze(ruch).getZetony() - getGracze(ruch).DodalDoPuli(tura) <= BB)
+                            b = getGracze(ruch).getZetony() - getGracze(ruch).DodalDoPuli(tura);
+
+                        else {
+                            System.out.print("Podaj kwote zakladu.");
+                            b = scanner.nextInt();
+                            if(b < BB) b = BB;
+                            else if(b > getGracze(ruch).getZetony() - getGracze(ruch).DodalDoPuli(tura))
+                                b = getGracze(ruch).getZetony() - getGracze(ruch).DodalDoPuli(tura);
+                        }
+
+                        addPula(b);
+                        getGracze(ruch).setZaklady(tura, b);
+
+                        setMaxBet(getGracze(ruch).getZaklady(tura));
+                        resetNrRaise();
+                    }
+                    else if(k == 2)
+                        NrRaise++;
+                }
+
                 getGracze(ruch).Zaklad();
                 if(getGracze(ruch).getZetony() == getGracze(ruch).getZaklad()) {
                     StackiNormalne++;
@@ -588,6 +614,7 @@ public class Stol {
     }
 
     private void RozdzielFoldy() {
+        System.out.println("RozdzielFoldy()");
         for(int i = 0; i < LiczbaGraczy; i++) {
             getGracze(i).substractZetony(getGracze(i).getZaklad()) ;
             if(getGracze(i).isCzyGra())
@@ -597,26 +624,28 @@ public class Stol {
     }
 
     private void SprawdzUklady() {
-        System.out.println("a");
         for(int i = 0; i < LiczbaGraczy; i++) {
-            System.out.println("b");
             if(getGracze(i).isCzyGra()) {
-                System.out.println("c");
                 getGracze(i).setUklad(this);
-                System.out.println(getGracze(i).getUklad().getWszystkieKarty().get(0).getWartosc());
                 getGracze(i).getUklad().sprawdzUklad();
+                System.out.println(getGracze(i).getNickname() + " zdobyl " + getGracze(i).getUklad().getPunkty() + " punktow.");
             }
         }
     }
 
     private void RozdzielPule() {
+        // === TEST ===> //
+        WyswietlGraczy();
+        System.out.println("pule.size(): " + pule.size());
+        pule.stream().map(integer -> "pule.get(i): " + integer).forEach(System.out::println);
+        // <=== TEST === //
         for(int i = 0; i < LiczbaGraczy; i++)
             getGracze(i).substractZetony(getGracze(i).getZaklad());
-        System.out.println("ST SIZE" + stacki.size());
+        System.out.println("stacki.size(): " + stacki.size()); //TEST
         for(int k = pule.size() - 1; k >= 0; k--) {
-            ArrayList<Gracz> Najlepsi = new ArrayList<>();
+            var Najlepsi = new ArrayList<Gracz>();
             int MaxPts = 0;
-            System.out.println("ST" + getStacki(k));
+            System.out.println("getStacki(" + k + "): " + getStacki(k)); //TEST
             for(int i = 0; i < LiczbaGraczy; i++) {
                 if(getGracze(i).isCzyGra() && getGracze(i).getZaklad() >= getStacki(k))
                     if(getGracze(i).getUklad().getPunkty() > MaxPts) {
@@ -626,15 +655,16 @@ public class Stol {
                     }
                     else if(getGracze(i).getUklad().getPunkty() == MaxPts)
                         Najlepsi.add(getGracze(i));
-                System.out.println("MAX" + MaxPts + "MAX" + getGracze(i).getUklad().getPunkty());
             }
             var strPula = new StringBuilder();
-            System.out.println("NAJ!!!" + Najlepsi.size());
+            System.out.println("Najlepsi.size(): " + Najlepsi.size());
+
+            // TODO: inny napis w przypadku braku puli pobocznych
             if(Najlepsi.size() == 1) {
                 Najlepsi.get(0).addZetony(pule.get(k));
 
-                strPula.append(Najlepsi.get(0))
-                        .append(" wins a side pot number ")
+                strPula.append(Najlepsi.get(0).getNickname())
+                        .append(" wins a side pot ")
                         .append(pule.get(k))
                         .append(" with a ")
                         .append(Najlepsi.get(0).getUklad().getNazwa())
@@ -668,6 +698,6 @@ public class Stol {
             }
             System.out.println(strPula);
         }
-        WyswietlGraczy();
+        WyswietlGraczyPoPodzialePuli();
     }
 }

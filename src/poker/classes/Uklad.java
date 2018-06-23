@@ -14,7 +14,7 @@ public class Uklad {
     private HashMap<Integer, Karta> NajlepszyUklad;	//Najlepszy 5-kartowy uklad
     private HashMap<Integer, Karta> WszystkieKarty;	//Wszystkie karty, z ktorych stworzony moze byc uklad
 
-    public Uklad() {
+    Uklad() {
         Punkty = 0;
         Nazwa = "";
         MaxKolor = 0;
@@ -28,7 +28,7 @@ public class Uklad {
     }
 
     @SuppressWarnings("unused")
-    public Uklad(Gracz gracz, Stol stol) {
+    Uklad(Gracz gracz, Stol stol) {
         this();
         WszystkieKarty.put(0, gracz.getKarta1());
         WszystkieKarty.put(1, gracz.getKarta2());
@@ -108,7 +108,6 @@ public class Uklad {
 
     @SuppressWarnings({"unused", "Duplicates"})
     private boolean CzyPoker() {
-        System.out.println(WszystkieKarty.get(0).getWartosc());
         if(MaxKolor == 5) {
             int min = 14;
             int max = 0;
@@ -219,9 +218,7 @@ public class Uklad {
         int mini1 = 14;
         int mini2 = 15;
         int mini3 = 16;
-        System.out.println(WszystkieKarty.get(0).getWartosc());
         for(int i = 0; i < 7; i++) {
-            System.out.println(WszystkieKarty.get(i).getWartosc());
             if(WszystkieKarty.get(i).getWartosc() % 13 < mini1) {
                 mini3 = mini2;
                 mini2 = mini1;
@@ -293,7 +290,6 @@ public class Uklad {
 
     @SuppressWarnings({"Duplicates", "unused"})
     void sprawdzUklad() {
-        System.out.println(WszystkieKarty.get(0).getWartosc());
         //ROYAL FLUSH////////////
         if(WartoscKoloru() == 55) {
             Punkty = 1200000;
@@ -931,7 +927,7 @@ public class Uklad {
 
     /* ==== GETTERS AND SETTERS ==== */
 
-    public int getPunkty() {
+    int getPunkty() {
         return Punkty;
     }
 
@@ -940,7 +936,7 @@ public class Uklad {
         Punkty = punkty;
     }
 
-    public String getNazwa() {
+    String getNazwa() {
         return Nazwa;
     }
 
@@ -959,7 +955,7 @@ public class Uklad {
         NajlepszyUklad = najlepszyUklad;
     }
 
-    public HashMap<Integer, Karta> getWszystkieKarty() {
+    HashMap<Integer, Karta> getWszystkieKarty() {
         return WszystkieKarty;
     }
 
