@@ -13,8 +13,8 @@ public class Player {
         this("", 0, 0);
     }
 
-    Player(String Nickname, int chips, int place) {
-        this.nickname = Nickname;
+    Player(String nickname, int chips, int place) {
+        this.nickname = nickname;
         card1 = card2 = new Card();
         hand = new Hand();
         this.chips = chips;
@@ -42,8 +42,8 @@ public class Player {
     }
 
     @SuppressWarnings("unused")
-    public void setNickname(String Nickname) {
-        this.nickname = Nickname;
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     Card getCard1() {
@@ -83,8 +83,8 @@ public class Player {
         this.setChips(0);
     }
 
-    private void setChips(int Zetony) {
-        this.chips = Zetony;
+    private void setChips(int chips) {
+        this.chips = chips;
     }
 
     @SuppressWarnings("unused")
@@ -93,8 +93,8 @@ public class Player {
     }
 
     @SuppressWarnings("unused")
-    public void setPlace(int Miejsce) {
-        this.place = Miejsce;
+    public void setPlace(int place) {
+        this.place = place;
     }
 
     int getBet() {
@@ -102,42 +102,42 @@ public class Player {
     }
 
     @SuppressWarnings("unused")
-    void setBet(int Zaklad) {
-        this.bet = Zaklad;
+    void setBet(int bet) {
+        this.bet = bet;
     }
 
     boolean isPlaying() {
         return isPlaying;
     }
 
-    void setPlaying(boolean CzyGra) {
-        this.isPlaying = CzyGra;
+    void setPlaying(boolean isPlaying) {
+        this.isPlaying = isPlaying;
     }
 
-    //ZAKLADY//
+    //BETS//
 
     @SuppressWarnings("unused")
     int getBets() {
-        int suma = 0;
-        for(int i = 0; i < 4; i++) suma += bets[i];
-        return suma;
+        int sum = 0;
+        for(int i = 0; i < 4; i++) sum += bets[i];
+        return sum;
     }
 
-    int getBets(int Tura) {
-        return bets[Tura];
+    int getBets(int round) {
+        return bets[round];
     }
 
     @SuppressWarnings("unused")
-    void setBets(int[] Zaklady) {
-        this.bets = Zaklady;
+    void setBets(int[] bets) {
+        this.bets = bets;
     }
 
-    void setBets(int Tura, int Wartosc) {
-        this.bets[Tura] = Wartosc;
+    void setBets(int round, int value) {
+        this.bets[round] = value;
     }
 
-    void addBets(int Tura, int Wartosc) {
-        this.bets[Tura] += Wartosc;
+    void addBets(int round, int value) {
+        this.bets[round] += value;
     }
 
     /////////////////////////////////////////////////////////////////////////////////
@@ -146,11 +146,11 @@ public class Player {
         this.chips++;
     }
 
-    void addChips(int Zetony) {
-        this.chips += Zetony;
+    void addChips(int chips) {
+        this.chips += chips;
     }
 
-    void substractChips(int Zetony) {
-        this.chips -= Zetony;
+    void substractChips(int chips) {
+        this.chips -= chips;
     }
 }

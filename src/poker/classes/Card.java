@@ -12,7 +12,7 @@ public class Card {
     private String nameLong;
 
     Card() {
-        this(0, 0);
+        this(-1, 0);
     }
 
     Card(int suit, int value) {
@@ -99,8 +99,8 @@ public class Card {
         return isUsed;
     }
 
-    void setUsed(boolean Uzyta) {
-        this.isUsed = Uzyta;
+    void setUsed(boolean isUsed) {
+        this.isUsed = isUsed;
     }
 
     @SuppressWarnings("unused")

@@ -1,18 +1,16 @@
 package poker.classes;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Random;
 
-public class Deck {
-    private HashMap<Integer, Card> cards;
+class Deck {
+    private ArrayList<Card> cards;
 
     Deck() {
-        cards = new HashMap<>();
-        int key = 0;
+        cards = new ArrayList<>();
         for(int suit = 0; suit < 4; suit++)
             for(int value = 1; value <= 13; value++) {
-                Card card = new Card(suit, value);
-                cards.put(key++, card);
+                cards.add(new Card(suit, value));
             }
     }
 
@@ -32,15 +30,22 @@ public class Deck {
         return cards.get(number);
     }
 
-    /* ==== GETTERS AND SETTERS ==== */
-
-    @SuppressWarnings("unused")
-    public HashMap<Integer, Card> getCards() {
-        return cards;
+    Card drawCard(int number) {
+        if(!cards.get(number).isUsed())
+            cards.get(number).setUsed(true);
+        return cards.get(number);
     }
 
-    @SuppressWarnings("unused")
-    public void setCards(HashMap<Integer, Card> Karty) {
-        this.cards = Karty;
+    int usedCount() {
+        int count = 0;
+        for(Card card : cards)
+            if(card.isUsed()) count++;
+        return count;
+    }
+
+    /* ==== GETTERS AND SETTERS ==== */
+
+    public ArrayList<Card> getCards() {
+        return cards;
     }
 }
