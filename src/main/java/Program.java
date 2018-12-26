@@ -1,15 +1,12 @@
-package poker;
-
-import poker.classes.Board;
+import classes.Board;
 
 import java.util.Scanner;
 
-public class Main {
-
+public class Program {
     public static void main(String[] args) {
         var scanner = new Scanner(System.in);
 
-        Board board = new Board(3);
+        var board = new Board(9);
 
         board.addPlayers(scanner);
         board.deal(scanner);

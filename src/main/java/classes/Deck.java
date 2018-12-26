@@ -1,12 +1,12 @@
-package poker.classes;
+package classes;
 
 import java.util.ArrayList;
 import java.util.Random;
 
-class Deck {
+public class Deck {
     private ArrayList<Card> cards;
 
-    Deck() {
+    public Deck() {
         cards = new ArrayList<>();
         for(int suit = 0; suit < 4; suit++)
             for(int value = 1; value <= 13; value++) {

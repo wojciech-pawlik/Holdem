@@ -1,4 +1,4 @@
-package poker.classes;
+package classes;
 
 public class Player {
     private String nickname;
@@ -150,7 +150,7 @@ public class Player {
         this.chips += chips;
     }
 
-    void substractChips(int chips) {
+    void subtractChips(int chips) {
         this.chips -= chips;
     }
 }

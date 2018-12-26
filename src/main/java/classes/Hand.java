@@ -1,4 +1,4 @@
-package poker.classes;
+package classes;
 
 import java.util.HashMap;
 
@@ -14,7 +14,7 @@ public class Hand {
     private HashMap<Integer, Card> bestHand;	//best 5-card hand
     private HashMap<Integer, Card> allCards;	//all cards which can build a hand
 
-    Hand() {
+    public Hand() {
 //        System.out.println("Hand()");
         points = 0;
         name = "";
@@ -30,7 +30,7 @@ public class Hand {
     }
 
     @SuppressWarnings("unused")
-    Hand(Player player, Board board) {
+    public Hand(Player player, Board board) {
         this();
 //        System.out.println("Player: " + player.getNickname());
         try {
@@ -57,15 +57,22 @@ public class Hand {
 
     /* ==== HELPFUL METHODS TO CHECK HAND ==== */
 
+    // ONLY FOR TESTS //
+    public void suitsAndValues() {
+        howManySuited();
+        maxValuePower1();
+        maxValuePower2();
+    }
+
 
     private void howManySuited() {
 //        System.out.println("howManySuited()");
         for(int i = 0; i < 4; i++) {
-            int licznik = 0;
+            int count = 0;
             for(int j = 0; j < allCards.size(); j++)
-                if(allCards.get(j).getSuit() == i) licznik++;
-            if(licznik > maxSuit) {
-                maxSuit = licznik;
+                if(allCards.get(j).getSuit() == i) count++;
+            if(count > maxSuit) {
+                maxSuit = count;
                 suit = i;
             }
         }
@@ -209,11 +216,11 @@ public class Hand {
         int nr = 0;
         for(int i = 1; i <= 13; i++)
             if(i != value1) {
-                int licznik = 0;
+                int count = 0;
                 for(int j = 0; j < allCards.size(); j++)
-                    if(allCards.get(j).getValue() == i) licznik++;
-                if(licznik >= max) {
-                    max = licznik;
+                    if(allCards.get(j).getValue() == i) count++;
+                if(count >= max) {
+                    max = count;
                     nr = i;
                 }
             }
@@ -279,32 +286,38 @@ public class Hand {
         int max3 = -2;
         int max4 = -3;
         int max5 = -4;
-        for(int k = 0; k < allCards.size(); k++) {
-            if(allCards.get(k).getValue() > max1) {
-                max5 = max4;
-                max4 = max3;
-                max3 = max2;
-                max2 = max1;
-                max1 = allCards.get(k).getValue();
+        try {
+            for(int k = 0; k < allCards.size(); k++) {
+                if(allCards.get(k).getValue() > max1) {
+                    max5 = max4;
+                    max4 = max3;
+                    max3 = max2;
+                    max2 = max1;
+                    max1 = allCards.get(k).getValue();
+                }
+                else if(allCards.get(k).getValue() > max2 && allCards.get(k).getValue() < max1) {
+                    max5 = max4;
+                    max4 = max3;
+                    max3 = max2;
+                    max2 = allCards.get(k).getValue();
+                }
+                else if(allCards.get(k).getValue() > max3 && allCards.get(k).getValue() < max2) {
+                    max5 = max4;
+                    max4 = max3;
+                    max3 = allCards.get(k).getValue();
+                }
+                else if(allCards.get(k).getValue() > max4 && allCards.get(k).getValue() < max3) {
+                    max5 = max4;
+                    max4 = allCards.get(k).getValue();
+                }
+                else if(allCards.get(k).getValue() > max5 && allCards.get(k).getValue() < max4)
+                    max5 = allCards.get(k).getValue();
             }
-            else if(allCards.get(k).getValue() > max2 && allCards.get(k).getValue() < max1) {
-                max5 = max4;
-                max4 = max3;
-                max3 = max2;
-                max2 = allCards.get(k).getValue();
-            }
-            else if(allCards.get(k).getValue() > max3 && allCards.get(k).getValue() < max2) {
-                max5 = max4;
-                max4 = max3;
-                max3 = allCards.get(k).getValue();
-            }
-            else if(allCards.get(k).getValue() > max4 && allCards.get(k).getValue() < max3) {
-                max5 = max4;
-                max4 = allCards.get(k).getValue();
-            }
-            else if(allCards.get(k).getValue() > max5 && allCards.get(k).getValue() < max4)
-                max5 = allCards.get(k).getValue();
+        } catch (NullPointerException e) {
+//            e.getMessage();
+            System.out.println("Can't check if it is straight ace high");
         }
+
         return max1 == 13 && max5 == 9;
     }
 
@@ -312,7 +325,7 @@ public class Hand {
     /* ==== MAIN FUNCTION WHICH CHECK HAND ==== */
 
     @SuppressWarnings({"Duplicates", "unused"})
-    void checkHand() {
+    public int checkHand() {
         //ROYAL FLUSH////////////
         if(suitValue() == 55) {
             points = 1200000;
@@ -328,7 +341,7 @@ public class Hand {
 
         //STRAIGHT FLUSH/////////
         else if(isStraightFlush()) {
-            nameShort = "Straight flush";
+            name = "Straight flush";
             if(maxSuit == 5) {
                 int max1 = 0;
                 int max2 = -1;
@@ -584,7 +597,7 @@ public class Hand {
             nameShort += ", " + bestHand.get(0).getValueNameLong() + "s full of "
                     + bestHand.get(3).getValueNameLong() + "s";
             name = nameShort;
-            points = 1140000 + 196* bestHand.get(0).getValue() + 14* bestHand.get(3).getValue();
+            points = 1140000 + 14* bestHand.get(0).getValue() + bestHand.get(3).getValue();
         }
 
         //FLUSH///////////////////////////////////////////
@@ -657,7 +670,7 @@ public class Hand {
         else if(isStraightAceHigh()) {
             nameShort = "Straight";
             name = "Straight, Ace high";
-            points = 16370;
+            points = 600000;
             for(int i = 0; i < allCards.size(); i++) {
                 if(allCards.get(i).getValue() == 13) bestHand.put(0, allCards.get(i));
                 if(allCards.get(i).getValue() == 12) bestHand.put(1, allCards.get(i));
@@ -677,7 +690,7 @@ public class Hand {
             int max6 = -5;
             int max7 = -6;
             int i1, i2, i3, i4, i5, i6, i7;
-            i1 = i2 = i3 = i4 = i5 = i6 = i7 = 0;
+            i1 = i2 = i3 = i4 = i5 = i6 = i7 = -1;
             for(int k = 0; k < allCards.size(); k++) {
                 if(allCards.get(k).getValue() % 13 > max1) {
                     max7 = max6;
@@ -949,18 +962,19 @@ public class Hand {
             name = nameShort + " with " + bestHand.get(1).getValueNameLong() + "-"
                     + bestHand.get(2).getValueNameLong() + "-" + bestHand.get(3).getValueNameLong() + "-"
                     + bestHand.get(4).getValueNameLong() + " kicker";
-            points = 38416* bestHand.get(0).getValue() + 2744* bestHand.get(1).getValue() + 192* bestHand.get(2).getValue()
+            points = 38416* bestHand.get(0).getValue() + 2744* bestHand.get(1).getValue() + 196* bestHand.get(2).getValue()
                     + 14* bestHand.get(3).getValue() + bestHand.get(4).getValue();
         }
+        return points;
     }
 
     /* ==== GETTERS AND SETTERS ==== */
 
-    int getPoints() {
+    public int getPoints() {
         return points;
     }
 
-    String getName() {
+    public String getName() {
         return name;
     }
 
@@ -968,7 +982,25 @@ public class Hand {
         return bestHand;
     }
 
-    HashMap<Integer, Card> getAllCards() {
+    public HashMap<Integer, Card> getAllCards() {
         return allCards;
+    }
+
+    public void setAllCards(HashMap<Integer, Card> allCards) {
+        this.allCards = allCards;
+    }
+
+    public void destroyHand() {
+        points = 0;
+        name = "";
+        nameShort = "";
+        maxSuit = 0;
+        suit = 0;
+        maxValue1 = 0;
+        value1 = 0;
+        maxValue2 = 0;
+        value2 = 0;
+        bestHand.clear();
+        allCards.clear();
     }
 }

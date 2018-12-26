@@ -1,4 +1,4 @@
-package poker.classes;
+package classes;
 
 public class Card {
     private int value; //2 -> 1, ..., T -> 9, J -> 10, Q -> 11, K -> 12, A -> 13// (2 -> 1 because in some cases ace could have a count '0')
@@ -136,3 +136,4 @@ public class Card {
         return nameLong;
     }
 }
+

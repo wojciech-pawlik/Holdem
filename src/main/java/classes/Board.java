@@ -1,4 +1,4 @@
-package poker.classes;
+package classes;
 
 import java.util.*;
 import java.util.stream.IntStream;
@@ -90,7 +90,7 @@ public class Board {
         this.river = river;
     }
 
-    //INTY//
+    // GETTERS, SETTERS, etc.//
 
     private void addPot(int pot) {
         this.pot += pot;
@@ -125,10 +125,10 @@ public class Board {
     }
 
     private void resetNrRaise() {
-        this.afterRaise = 0;
+        this.afterRaise = 1;
     }
 
-    // == stacks ante bez powtorzen == //
+    // == stacks ante without duplicates == //
     private int countStacksAnte() {
         int count = 0;
         for(Integer i : stacks)
@@ -136,13 +136,13 @@ public class Board {
         return count;
     }
 
-    /* ==== SORTOWANIE ==== */
+    /* ==== SORT ==== */
 
     private void sortStacks() {
         Collections.sort(stacks);
     }
 
-    /* ==== FUNKCJE	PROGRAMU ==== */
+    /* ==== METHODS ==== */
 
     private void drawCards() {
         for(int i = 0; i < playersCount; i++) {
@@ -207,7 +207,7 @@ public class Board {
                 stacksAnte++;
             }
             else {
-                players.get(i).substractChips(ante);
+                players.get(i).subtractChips(ante);
                 pot += ante;
             }
         }
@@ -275,16 +275,16 @@ public class Board {
     }
 
     public void addPlayers(Scanner scanner) {
-        System.out.print("Podaj liczbe graczy: ");
+        System.out.print("How many players? ");
         setPlayersCount(scanner.nextInt());
         if(playersCount > placesCount)
             setPlayersCount(placesCount);
         else if(playersCount < 2)
             setPlayersCount(2);
-        System.out.printf("Liczba graczy: %d\n", playersCount);
+        System.out.printf("Count of players: %d\n", playersCount);
 
         for(int i = 0; i < playersCount; i++) {
-            System.out.printf("Podaj nickname gracza nr %d: ", i + 1);
+            System.out.printf("Enter a nickname of player %d: ", i + 1);
             Player player = new Player(scanner.next(), 10000, i);
             players.add(player);
         }
@@ -301,7 +301,7 @@ public class Board {
         IntStream.range(0, playersCount).map(i -> players.get(i).getChips() - players.get(i).getBet()).forEach(chips -> System.out.printf("%d\t\t\t", chips));
         System.out.println();
         if(cards) {
-            IntStream.range(0, placesCount).forEach(i -> System.out.printf("%s%s\t\t\t", players.get(i).getCard1().getName(), players.get(i).getCard2().getName()));
+            IntStream.range(0, playersCount).forEach(i -> System.out.printf("%s%s\t\t\t", players.get(i).getCard1().getName(), players.get(i).getCard2().getName()));
             System.out.println();
         }
     }
@@ -336,17 +336,17 @@ public class Board {
         for(int i = 0; i < playersCount; i++)
             System.out.printf("%s%s\t\t\t", players.get(i).getCard1().getName(), players.get(i).getCard2().getName());
         System.out.println();
-        if(stacksNormal >= playersCount - 1) {		//BEZ ROZGRYWKI PREFLOP (GŁÓWNIE HU)
+        if(stacksNormal >= playersCount - 1) {		//WITHOUT PREFLOP
             adjust();
             displayPlayers(true); //TEST
             drawFlop();
             drawTurn();
             drawRiver();
         }
-        else {												//ROZGRYWKA PREFLOP
+        else {												//PREFLOP
             preflop(scanner);
             adjust();
-            if(folds == playersCount - 1) {                //WSZYSCY SPASOWALI PREFLOP
+            if(folds == playersCount - 1) {                //EVERYONE FOLD PREFLOP
                 System.out.println("distributeFolds"); //TEST
                 distributeFolds();
             }
@@ -359,36 +359,36 @@ public class Board {
                 checkHands(true);
                 distribute();
             }
-            else {											//ROZGRYWKA NA FLOPIE
+            else {											//FLOP
                 drawFlop();
                 postflop(scanner, FLOP);
                 adjust();
-                if(folds == playersCount - 1)			//WSZYSCY SPASOWALI NA FLOPIE
+                if(folds == playersCount - 1)			//EVERYONE FOLD FLOP
                     distributeFolds();
-                else if(folds + stacksNormal == playersCount - 1) {	//SHOWDOWN (ALL-IN) NA FLOPIE
+                else if(folds + stacksNormal == playersCount - 1) {	//SHOWDOWN (ALL-IN) FLOP
                     drawTurn();
                     drawRiver();
                     checkHands(true);
                     distribute();
                 }
-                else {										//ROZGRYWKA NA TURNIE
+                else {										//TURN
                     drawTurn();
                     postflop(scanner, TURN);
                     adjust();
-                    if(folds == playersCount - 1)		//WSZYSCY SPASOWALI NA TURNIE
+                    if(folds == playersCount - 1)		//EVERYONE FOLD ON TURN
                         distributeFolds();
-                    else if(folds + stacksNormal == playersCount - 1) {	//SHOWDOWN (ALL-IN) NA TURNIE
+                    else if(folds + stacksNormal == playersCount - 1) {	//SHOWDOWN (ALL-IN) TURN
                         drawRiver();
                         checkHands(true);
                         distribute();
                     }
-                    else {									//ROZGRYWKA NA RIVERZE
+                    else {									//RIVER
                         drawRiver();
                         postflop(scanner, RIVER);
                         adjust();
-                        if(folds == playersCount - 1)	//WSZYSCY SPASOWALI NA RIVERZE
+                        if(folds == playersCount - 1)	//EVERYONE FOLD ON RIVER
                             distributeFolds();
-                        else {								//SHOWDOWN NA RIVERZE
+                        else {								//SHOWDOWN RIVER
                             checkHands(true);
                             distribute();
                         }
@@ -401,7 +401,7 @@ public class Board {
     private void adjust() {
         System.out.println("adjust()");
 
-        // <--- Sotrowanie i redukowanie listy stackow ---> // (redukowanie - usuwanie powtorzen)
+        // <--- Sort and reduce list of stacks ---> //
         sortStacks();
         System.out.println("stacks.size(): " + stacks.size());
         if(stacks.size() > 1)
@@ -412,7 +412,7 @@ public class Board {
                 }
         displayStacks();
 
-        // <--- Dodawanie puli pobocznych ---> //
+        // <--- Add side pots ---> //
         System.out.println("pots.size(): " + pots.size());
         for(int i = pots.size() - 1; i >= countStacksAnte(); i--)
             pots.remove(i);
@@ -442,11 +442,11 @@ public class Board {
         }
         displayPots();
 
-        // <--- Ustawienie maksymalnego zakladu na 0 (nowa tura) ---> //
+        // <--- Set max bet 0 (new round) ---> //
         setMaxBet(0);
 
-        // <--- Jesli gracz wsunal all-ina, a ma wiekszy stack od pozostalych stakujacych sie graczy ---> //
-        // <--- Zwrocenie nadwyzki wrzuconej przez gracza do puli ---> //
+        // <--- If player goes all-in while having a bigger stack than other players on all-in ---> //
+        // <--- Turn back overpot ---> //
         if(stacksNormal > 1 && folds + stacksNormal == playersCount)
             for(int i = 0; i < playersCount; i++)
                 if(players.get(i).getChips() > stacks.get(stacks.size() - 1))
@@ -457,25 +457,22 @@ public class Board {
         System.out.println("preflop()");
         displayPlayers(true);
         calculate(PREFLOP);
-        int turn; // deklaracja zmiennej mowiacej, ktory gracz ma ruch
-        afterRaise = -1;
+        int turn; // which player is on action
+        afterRaise = 1;
 
-        // === okreslenie, ktory gracz rozpoczyna rozgrywke === //
-        if(playersCount == 2)
-            turn = button;
-        else
-            turn = (button + 3) % playersCount;
+        // === who begins === //
+        turn = playersCount == 2 ? button : (button + 3) % playersCount;
 
         // === GAME PREFLOP === //
-        while(afterRaise < playersCount - 1) {
+        while(afterRaise < playersCount) {
             if(players.get(turn).isPlaying() && players.get(turn).getChips() > players.get(turn).getBet()) {
-                // === EVERYONE LIMPED TO BB === //
+                // === Everyone limped to player on BB === //
                 if(players.get(turn).getBets(PREFLOP) == maxBet) {
                     System.out.printf("Player %s: 1 - raise, 2 - check).\n", players.get(turn).getNickname());
                     String choice = scanner.next();
                     switch (choice) {
                         case "1":
-                            System.out.print("Podaj kwote zakladu.");
+                            System.out.print("Enter a bet size.");
                             int b;
                             if(players.get(turn).getChips() - maxBet < bigBlind)
                                 b = players.get(turn).getChips() - maxBet;
@@ -488,9 +485,10 @@ public class Board {
                                     b = players.get(turn).getChips();
                             }
 
-                            System.out.println("Kwota zakladu: " + b);
+                            System.out.println("Bet size: " + b);
                             addPot(b - players.get(turn).getBets(PREFLOP));
-                            players.get(turn).addBets(0, b);
+                            players.get(turn).addBets(PREFLOP, b);
+                            setMaxBet(b);
 
                             resetNrRaise();
                             break;
@@ -510,10 +508,10 @@ public class Board {
                         // == RAISE == //
                         case "1":
                             int b;
-                            // = IF PLAYER HAS IN HIS STACK LESS THAN 1BB MORE THAN MAXBET = //
+                            // = If player has in his stack less than 1BB more than maxbet = //
                             if (players.get(turn).getBets(PREFLOP) + players.get(turn).getChips() - maxBet < bigBlind)
                                 b = players.get(turn).getBets(PREFLOP) + players.get(turn).getChips() - maxBet;
-                            // = NORMAL CASE = //
+                                // = NORMAL CASE = //
                             else {
                                 System.out.println("Enter a bet size: ");
                                 b = scanner.nextInt();
@@ -568,8 +566,8 @@ public class Board {
         displayPlayers(true);
         calculate(part);
         int turn = (button + 1) % playersCount;
-        afterRaise = -1;
-        while(afterRaise < playersCount - 1) {
+        afterRaise = 1;
+        while(afterRaise < playersCount) {
             if(players.get(turn).isPlaying() && players.get(turn).getChips() > players.get(turn).getBet()) {
                 if(players.get(turn).getBets(part) < maxBet) {
                     System.out.printf("Player %s: 1 - raise, 2 - call, 3 - fold).\n", players.get(turn).getNickname());
@@ -588,15 +586,19 @@ public class Board {
 
                             addPot(b - players.get(turn).getBets(part));
                             players.get(turn).setBets(part, b);
+                            System.out.println("Bet " + b);
 
                             resetNrRaise();
                             setMaxBet(b);
                             break;
                         case 2:
+                            // = ALL-IN = //
                             if(players.get(turn).getChips() - players.get(turn).getBet() < maxBet) {
                                 addPot(maxBet - players.get(turn).getBets(part));
-                                players.get(turn).addBets(part, players.get(turn).getChips());
+                                players.get(turn).addBets(part, players.get(turn).getChips() - players.get(turn).getBet());
+                                System.out.println("Bet " + players.get(turn).getBets(part));
                             }
+                            // = COLD CALL = //
                             else {
                                 addPot(maxBet - players.get(turn).getBets(part));
                                 players.get(turn).setBets(part, maxBet);
@@ -658,7 +660,7 @@ public class Board {
     private void distributeFolds() {
         System.out.println("distributeFolds()");
         for(int i = 0; i < playersCount; i++) {
-            players.get(i).substractChips(players.get(i).getBet()) ;
+            players.get(i).subtractChips(players.get(i).getBet()) ;
             if(players.get(i).isPlaying()) {
                 players.get(i).addChips(pot);
                 System.out.println(pot + "   " + players.get(i).getNickname());
@@ -689,7 +691,7 @@ public class Board {
     private void distribute() {
         System.out.println("distribute()");
         for(int i = 0; i < playersCount; i++)
-            players.get(i).substractChips(players.get(i).getBet());
+            players.get(i).subtractChips(players.get(i).getBet());
         int remains = stacks.size();
         for(int k = (pots.size() - 1); k >= 0; k--) {
             var bestPlayers = new ArrayList<Player>();
@@ -791,6 +793,7 @@ public class Board {
     // <=== CALCULATION METHODS ===> //
 
     private void calculate(int part) {
+//        System.out.println("calculate()");
         var wins = new float[players.size()];
         var chances = new float[players.size()];
         int sum = 0;
@@ -827,14 +830,18 @@ public class Board {
     private void calcFlop(float[] wins) {
         int count = DRAW_COUNT;
         do {
-            var result = drawFive();
-            setFlop1(deck.getCards().get(result[0]));
-            setFlop2(deck.getCards().get(result[1]));
-            setFlop3(deck.getCards().get(result[2]));
-            setTurn(deck.getCards().get(result[3]));
-            setRiver(deck.getCards().get(result[4]));
-            checkHands(wins);
-            count--;
+            try {
+                var result = drawFive();
+                setFlop1(deck.getCards().get(result[0]));
+                setFlop2(deck.getCards().get(result[1]));
+                setFlop3(deck.getCards().get(result[2]));
+                setTurn(deck.getCards().get(result[3]));
+                setRiver(deck.getCards().get(result[4]));
+                checkHands(wins);
+                count--;
+            } catch(NullPointerException e) {
+                e.getMessage();
+            }
         } while(count > 0);
     }
 
@@ -879,7 +886,13 @@ public class Board {
             if(count == Collections.max(points))
                 winnersCount++;
         for(int player = 0; player < points.size(); player++)
-            if(points.get(player).equals(Collections.max(points)))
-                wins[player] += (1 / winnersCount);
+            if(points.get(player).equals(Collections.max(points))) {
+                try {
+                    wins[player] += (1 / winnersCount);
+                } catch(ArithmeticException e) {
+                    System.out.println("You fool!");
+                }
+
+            }
     }
 }
