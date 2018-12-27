@@ -74,13 +74,13 @@ public class HandTest {
 
     @Test
     public void checkHands() throws Exception {
-        hand.getAllCards().put(0, deck.getCards().get(Integer.parseInt(player1)));
-        hand.getAllCards().put(1, deck.getCards().get(Integer.parseInt(player2)));
-        hand.getAllCards().put(2, deck.getCards().get(Integer.parseInt(flop1)));
-        hand.getAllCards().put(3, deck.getCards().get(Integer.parseInt(flop2)));
-        hand.getAllCards().put(4, deck.getCards().get(Integer.parseInt(flop3)));
-        hand.getAllCards().put(5, deck.getCards().get(Integer.parseInt(turn)));
-        hand.getAllCards().put(6, deck.getCards().get(Integer.parseInt(river)));
+        hand.getAllCards().add(deck.getCards().get(Integer.parseInt(player1)));
+        hand.getAllCards().add(deck.getCards().get(Integer.parseInt(player2)));
+        hand.getAllCards().add(deck.getCards().get(Integer.parseInt(flop1)));
+        hand.getAllCards().add(deck.getCards().get(Integer.parseInt(flop2)));
+        hand.getAllCards().add(deck.getCards().get(Integer.parseInt(flop3)));
+        hand.getAllCards().add(deck.getCards().get(Integer.parseInt(turn)));
+        hand.getAllCards().add(deck.getCards().get(Integer.parseInt(river)));
 
         hand.suitsAndValues();
         hand.checkHand();
