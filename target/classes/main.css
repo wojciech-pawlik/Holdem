@@ -1,0 +1,25 @@
+/* FUNDAMENTAL LAYOUT */
+
+VBox, HBox, Pane {
+    -fx-border-width: 1;
+}
+
+VBox {
+    -fx-border-color: blue;
+    -fx-background-color: #AAAAFF;
+}
+
+HBox {
+    -fx-border-color: red;
+    -fx-background-color: #FFAAAA;
+    -fx-padding: 10;
+}
+
+Pane {
+    -fx-border-color: green;
+    -fx-background-color: #AAFFAA;
+}
+
+Label {
+    -fx-text-alignment: center;
+}

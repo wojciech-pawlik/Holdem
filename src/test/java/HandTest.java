@@ -1,5 +1,5 @@
-import classes.Deck;
-import classes.Hand;
+import poker.Deck;
+import poker.Hand;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

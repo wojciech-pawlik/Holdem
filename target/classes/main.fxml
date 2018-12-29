@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+
+<?import javafx.scene.shape.Box?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0"
+      prefWidth="600.0"
+      xmlns="http://javafx.com/javafx/8"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="sample.Controller"
+      stylesheets="@main.css">
+   <children>
+      <Pane prefHeight="600.0" prefWidth="30.0" />
+      <VBox prefHeight="600.0" prefWidth="250.0">
+         <children>
+             <VBox prefHeight="70.0" prefWidth="250.0" alignment="CENTER">
+                 <Label text="New run" fx:id="labelNewRun"></Label>
+             </VBox>
+             <VBox prefHeight="500.0" prefWidth="250.0">
+                 <HBox prefHeight="30" alignment="CENTER">
+                     <Label>Table appearance</Label>
+                 </HBox>
+                 <VBox prefHeight="170" alignment="CENTER">
+                     <HBox alignment="CENTER_LEFT">
+                         <Label>Number of seats:</Label>
+                         <ChoiceBox></ChoiceBox>
+                     </HBox>
+                     <HBox alignment="CENTER_LEFT">
+                         <Label>Big blind size:</Label>
+                         <ChoiceBox></ChoiceBox>
+                     </HBox>
+                     <HBox alignment="CENTER_LEFT">
+                         <Label>Ante:</Label>
+                         <CheckBox></CheckBox>
+                         <ChoiceBox></ChoiceBox>
+                     </HBox>
+                 </VBox>
+                 <VBox prefHeight="200">
+                     <HBox prefHeight="30" alignment="CENTER">
+                         <Label>Players</Label>
+                     </HBox>
+                     <BorderPane prefHeight="140">
+                         <top>
+                             <TableView fx:id="contactsTable" prefHeight="140">
+                                 <columnResizePolicy>
+                                     <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                                 </columnResizePolicy>
+                                 <columns>
+                                     <TableColumn text="Nr">
+                                         <cellValueFactory>
+                                             <PropertyValueFactory property=""/>
+                                         </cellValueFactory>
+                                     </TableColumn>
+                                     <TableColumn text="Nickname">
+                                         <cellValueFactory>
+                                             <PropertyValueFactory property=""/>
+                                         </cellValueFactory>
+                                     </TableColumn>
+                                     <TableColumn text="Chips">
+                                         <cellValueFactory>
+                                             <PropertyValueFactory property=""/>
+                                         </cellValueFactory>
+                                     </TableColumn>
+                                 </columns>
+                                 <ScrollPane fx:id="scrollPane">
+                                     <ScrollBar/>
+                                 </ScrollPane>
+                             </TableView>
+                         </top>
+                     </BorderPane>
+                     <HBox prefHeight="30">
+                         <Button text="Add" onAction="#showAddPlayerDialog">
+                             <tooltip>
+                                 <Tooltip text="Add a new player."/>
+                             </tooltip>
+                         </Button>
+                         <Button text="Edit" onAction="#showEditPlayerDialog">
+                             <tooltip>
+                                 <Tooltip text="Edit selected contact."/>
+                             </tooltip>
+                         </Button>
+                         <Button text="Delete" onAction="#deletePlayer">
+                             <tooltip>
+                                 <Tooltip text="Delete selected contact."/>
+                             </tooltip>
+                         </Button>
+                         <Label>Button:</Label>
+                         <ChoiceBox></ChoiceBox>
+                     </HBox>
+                 </VBox>
+                 <VBox prefHeight="100" alignment="CENTER">
+                     <Button prefHeight="60" prefWidth="Infinity">Run!</Button>
+                 </VBox>
+             </VBox>
+            <VBox prefHeight="30.0" prefWidth="250.0" />
+         </children>
+      </VBox>
+      <Pane prefHeight="600.0" prefWidth="40.0" />
+      <VBox prefHeight="600.0" prefWidth="250.0">
+         <children>
+             <VBox prefHeight="70.0" prefWidth="250.0" alignment="CENTER">
+                 <Label text="Load run" fx:id="labelLoadRun"></Label>
+             </VBox>
+            <VBox prefHeight="500.0" prefWidth="250.0" />
+            <VBox prefHeight="30.0" prefWidth="250.0" />
+         </children>
+      </VBox>
+      <Pane prefHeight="600.0" prefWidth="30.0" />
+   </children>
+</HBox>
