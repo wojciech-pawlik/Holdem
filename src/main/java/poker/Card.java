@@ -11,11 +11,11 @@ public class Card {
     private String name;
     private String nameLong;
 
-    Card() {
+    public Card() {
         this(-1, 0);
     }
 
-    Card(int suit, int value) {
+    public Card(int suit, int value) {
         this.value = value;
         this.suit = suit;
         isUsed = false;

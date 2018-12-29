@@ -19,10 +19,15 @@ public class Player {
     @Column(name = "chips")
     private int chips;
 
+    @Transient
     private Card card1, card2;
+    @Transient
     private Hand hand;
+    @Transient
     private int place, bet;
+    @Transient
     private boolean isPlaying;
+    @Transient
     private int[] bets = new int[4];
 
     public Player(int id, String nickname, int chips) {

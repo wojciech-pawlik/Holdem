@@ -24,6 +24,7 @@ public class Controller {
         try {
             // CREATING OBJECT //
             Player player = new Player(0,"Andrzej", 5000);
+
         } finally {
             factory.close();
         }

@@ -4,7 +4,7 @@
 
 <hibernate-configuration>
 
-    <session-factory name="hibernate.cfg.xml">
+    <session-factory>
 
         <!-- JDBC Database connection settings -->
         <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
