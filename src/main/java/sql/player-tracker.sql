@@ -13,6 +13,8 @@ CREATE TABLE `Players` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `nickname` varchar(45) DEFAULT NULL,
   `chips` int(11) DEFAULT NULL,
+  `notes` varchar(155) DEFAULT NULL,
+  `check` int(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 

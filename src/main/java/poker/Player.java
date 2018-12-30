@@ -1,15 +1,12 @@
 package poker;
 
-import com.sun.istack.Nullable;
-
 import javax.persistence.*;
 
 @Entity
 @Table(name = "Players")
 public class Player {
-
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
 
@@ -18,6 +15,12 @@ public class Player {
 
     @Column(name = "chips")
     private int chips;
+
+    @Column(name = "notes")
+    private String notes;
+
+//    @Column(name = "check")
+//    private int check;
 
     @Transient
     private Card card1, card2;
@@ -30,23 +33,28 @@ public class Player {
     @Transient
     private int[] bets = new int[4];
 
-    public Player(int id, String nickname, int chips) {
+
+    public Player() {}
+
+    public Player(int id, String nickname, int chips, String notes/*, int check*/) {
         this.id = id;
         this.nickname = nickname;
         card1 = card2 = new Card();
         hand = new Hand();
         this.chips = chips;
-        this.place = -1;
+        place = -1;
         bet = 0;
         bets[0] = bets[1] = bets[2] = bets[3] = 0;
         isPlaying = true;
+        this.notes = notes;
+//        this.check = check;
     }
 
-    void bet() {
+    public void bet() {
         bet = bets[0] + bets[1] + bets[2] + bets[3];
     }
 
-    int addedToPot(int round) {
+    public int addedToPot(int round) {
         int sum = 0;
         for(int i = 0; i < round; i++)
             sum += bets[i];
@@ -55,7 +63,7 @@ public class Player {
 
     /* ==== GETTERS AND SETTERS ==== */
 
-    String getNickname() {
+    public String getNickname() {
         return nickname;
     }
 
@@ -64,23 +72,23 @@ public class Player {
         this.nickname = nickname;
     }
 
-    Card getCard1() {
+    public Card getCard1() {
         return card1;
     }
 
-    void setCard1(Card card1) {
+    public void setCard1(Card card1) {
         this.card1 = card1;
     }
 
-    Card getCard2() {
+    public Card getCard2() {
         return card2;
     }
 
-    void setCard2(Card card2) {
+    public void setCard2(Card card2) {
         this.card2 = card2;
     }
 
-    Hand getHand() {
+    public Hand getHand() {
         return hand;
     }
 
@@ -89,19 +97,19 @@ public class Player {
         this.hand = hand;
     }
 
-    void setHand(Board board) {
+    public void setHand(Board board) {
         this.hand = new Hand(this, board);
     }
 
-    int getChips() {
+    public int getChips() {
         return chips;
     }
 
-    void setChips() {
+    public void setChips() {
         this.setChips(0);
     }
 
-    private void setChips(int chips) {
+    public void setChips(int chips) {
         this.chips = chips;
     }
 
@@ -115,60 +123,84 @@ public class Player {
         this.place = place;
     }
 
-    int getBet() {
+    public int getBet() {
         return bet;
     }
 
     @SuppressWarnings("unused")
-    void setBet(int bet) {
+    public void setBet(int bet) {
         this.bet = bet;
     }
 
-    boolean isPlaying() {
+    public boolean isPlaying() {
         return isPlaying;
     }
 
-    void setPlaying(boolean isPlaying) {
+    public void setPlaying(boolean isPlaying) {
         this.isPlaying = isPlaying;
     }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+//    public int getCheck() {
+//        return check;
+//    }
+//
+//    public void setCheck(int check) {
+//        this.check = check;
+//    }
 
     //BETS//
 
     @SuppressWarnings("unused")
-    int getBets() {
+    public int getBets() {
         int sum = 0;
         for(int i = 0; i < 4; i++) sum += bets[i];
         return sum;
     }
 
-    int getBets(int round) {
+    public int getBets(int round) {
         return bets[round];
     }
 
     @SuppressWarnings("unused")
-    void setBets(int[] bets) {
+    public void setBets(int[] bets) {
         this.bets = bets;
     }
 
-    void setBets(int round, int value) {
+    public void setBets(int round, int value) {
         this.bets[round] = value;
     }
 
-    void addBets(int round, int value) {
+    public void addBets(int round, int value) {
         this.bets[round] += value;
     }
 
     /////////////////////////////////////////////////////////////////////////////////
 
-    void addChips() {
+    public void addChips() {
         this.chips++;
     }
 
-    void addChips(int chips) {
+    public void addChips(int chips) {
         this.chips += chips;
     }
 
-    void subtractChips(int chips) {
+    public void subtractChips(int chips) {
         this.chips -= chips;
     }
 }

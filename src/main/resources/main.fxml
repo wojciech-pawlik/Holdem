@@ -8,63 +8,68 @@
 <?import javafx.scene.shape.Box?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 <HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0"
-      prefWidth="600.0"
+      prefWidth="800.0"
       xmlns="http://javafx.com/javafx/8"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="sample.Controller"
+      fx:id="mainPanel"
       stylesheets="@main.css">
    <children>
-      <Pane prefHeight="600.0" prefWidth="30.0" />
-      <VBox prefHeight="600.0" prefWidth="250.0">
+      <Pane prefHeight="600.0" prefWidth="50.0" />
+      <VBox prefHeight="600.0" prefWidth="320.0">
          <children>
-             <VBox prefHeight="70.0" prefWidth="250.0" alignment="CENTER">
+             <VBox prefHeight="70.0" prefWidth="320.0" alignment="CENTER">
                  <Label text="New run" fx:id="labelNewRun"></Label>
              </VBox>
-             <VBox prefHeight="500.0" prefWidth="250.0">
+             <VBox prefHeight="500.0" prefWidth="320.0">
                  <HBox prefHeight="30" alignment="CENTER">
                      <Label>Table appearance</Label>
                  </HBox>
-                 <VBox prefHeight="170" alignment="CENTER">
-                     <HBox alignment="CENTER_LEFT">
-                         <Label>Number of seats:</Label>
-                         <ChoiceBox></ChoiceBox>
-                     </HBox>
-                     <HBox alignment="CENTER_LEFT">
-                         <Label>Big blind size:</Label>
-                         <ChoiceBox></ChoiceBox>
-                     </HBox>
-                     <HBox alignment="CENTER_LEFT">
-                         <Label>Ante:</Label>
-                         <CheckBox></CheckBox>
-                         <ChoiceBox></ChoiceBox>
-                     </HBox>
-                 </VBox>
+                 <GridPane prefHeight="170" alignment="CENTER">
+                     <Label GridPane.rowIndex="0" GridPane.columnIndex="0">Number of seats:</Label>
+                     <ChoiceBox GridPane.rowIndex="0" GridPane.columnIndex="2"></ChoiceBox>
+                     <Label GridPane.rowIndex="1" GridPane.columnIndex="0">Big blind size:</Label>
+                     <ChoiceBox GridPane.rowIndex="1" GridPane.columnIndex="2"></ChoiceBox>
+                     <Label GridPane.rowIndex="2" GridPane.columnIndex="0">Ante:</Label>
+                     <CheckBox GridPane.rowIndex="2" GridPane.columnIndex="1"></CheckBox>
+                     <ChoiceBox GridPane.rowIndex="2" GridPane.columnIndex="2"></ChoiceBox>
+                 </GridPane>
                  <VBox prefHeight="200">
                      <HBox prefHeight="30" alignment="CENTER">
                          <Label>Players</Label>
                      </HBox>
                      <BorderPane prefHeight="140">
                          <top>
-                             <TableView fx:id="contactsTable" prefHeight="140">
+                             <TableView fx:id="playersTable" prefHeight="140">
                                  <columnResizePolicy>
                                      <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
                                  </columnResizePolicy>
                                  <columns>
-                                     <TableColumn text="Nr">
+                                     <TableColumn fx:id="idColumn" text="Id">
                                          <cellValueFactory>
                                              <PropertyValueFactory property=""/>
                                          </cellValueFactory>
                                      </TableColumn>
-                                     <TableColumn text="Nickname">
+                                     <TableColumn fx:id="nicknameColumn" text="Nickname">
                                          <cellValueFactory>
                                              <PropertyValueFactory property=""/>
                                          </cellValueFactory>
                                      </TableColumn>
-                                     <TableColumn text="Chips">
+                                     <TableColumn fx:id="chipsColumn" text="Chips">
                                          <cellValueFactory>
                                              <PropertyValueFactory property=""/>
                                          </cellValueFactory>
                                      </TableColumn>
+                                     <TableColumn fx:id="notesColumn" text="Notes">
+                                         <cellValueFactory>
+                                             <PropertyValueFactory property=""/>
+                                         </cellValueFactory>
+                                     </TableColumn>
+                                     <!--<TableColumn fx:id="selectColumn" text="">-->
+                                         <!--<cellValueFactory>-->
+                                             <!--<PropertyValueFactory property=""/>-->
+                                         <!--</cellValueFactory>-->
+                                     <!--</TableColumn>-->
                                  </columns>
                                  <ScrollPane fx:id="scrollPane">
                                      <ScrollBar/>
@@ -96,19 +101,19 @@
                      <Button prefHeight="60" prefWidth="Infinity">Run!</Button>
                  </VBox>
              </VBox>
-            <VBox prefHeight="30.0" prefWidth="250.0" />
+            <VBox prefHeight="30.0" prefWidth="320.0" />
          </children>
       </VBox>
       <Pane prefHeight="600.0" prefWidth="40.0" />
-      <VBox prefHeight="600.0" prefWidth="250.0">
+      <VBox prefHeight="600.0" prefWidth="320.0">
          <children>
-             <VBox prefHeight="70.0" prefWidth="250.0" alignment="CENTER">
+             <VBox prefHeight="70.0" prefWidth="320.0" alignment="CENTER">
                  <Label text="Load run" fx:id="labelLoadRun"></Label>
              </VBox>
-            <VBox prefHeight="500.0" prefWidth="250.0" />
-            <VBox prefHeight="30.0" prefWidth="250.0" />
+            <VBox prefHeight="500.0" prefWidth="320.0" />
+            <VBox prefHeight="30.0" prefWidth="320.0" />
          </children>
       </VBox>
-      <Pane prefHeight="600.0" prefWidth="30.0" />
+      <Pane prefHeight="600.0" prefWidth="50.0" />
    </children>
 </HBox>

@@ -285,7 +285,7 @@ public class Board {
 
         for(int i = 0; i < playersCount; i++) {
             System.out.printf("Enter a nickname of player %d: ", i + 1);
-            Player player = new Player(i, scanner.next(), 10000);
+            Player player = new Player(i, scanner.next(), 10000, "");
             player.setPlace(i);
             players.add(player);
         }
