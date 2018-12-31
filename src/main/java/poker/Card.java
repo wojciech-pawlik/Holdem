@@ -1,5 +1,10 @@
 package poker;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class Card {
     private int value; //2 -> 1, ..., T -> 9, J -> 10, Q -> 11, K -> 12, A -> 13// (2 -> 1 because in some cases ace could have a count '0')
     private int suit; //heart -> 0, diamond -> 1, spade -> 2, club -> 3//
@@ -83,52 +88,6 @@ public class Card {
             name = valueName + suitName;
             nameLong = valueNameLong + " " + suitNameLong;
         }
-    }
-
-    /* ==== GETTERS AND SETTERS ==== */
-
-    public int getValue() {
-        return value;
-    }
-
-    public int getSuit() {
-        return suit;
-    }
-
-    public boolean isUsed() {
-        return isUsed;
-    }
-
-    public void setUsed(boolean isUsed) {
-        this.isUsed = isUsed;
-    }
-
-    @SuppressWarnings("unused")
-    public String getValueName() {
-        return valueName;
-    }
-
-    public String getValueNameLong() {
-        return valueNameLong;
-    }
-
-    @SuppressWarnings("unused")
-    public String getSuitName() {
-        return suitName;
-    }
-
-    @SuppressWarnings("unused")
-    public String getSuitNameLong() {
-        return suitNameLong;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    @SuppressWarnings("unused")
-    public String getNameLong() {
-        return nameLong;
     }
 
     @Override

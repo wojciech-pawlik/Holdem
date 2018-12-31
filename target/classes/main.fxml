@@ -25,16 +25,16 @@
                  <HBox prefHeight="30" alignment="CENTER">
                      <Label>Table appearance</Label>
                  </HBox>
-                 <GridPane prefHeight="170" alignment="CENTER">
+                 <GridPane prefHeight="120" alignment="CENTER">
                      <Label GridPane.rowIndex="0" GridPane.columnIndex="0">Number of seats:</Label>
-                     <ChoiceBox GridPane.rowIndex="0" GridPane.columnIndex="2"></ChoiceBox>
+                     <ChoiceBox fx:id="seatsChoiceBox" GridPane.rowIndex="0" GridPane.columnIndex="2"></ChoiceBox>
                      <Label GridPane.rowIndex="1" GridPane.columnIndex="0">Big blind size:</Label>
-                     <ChoiceBox GridPane.rowIndex="1" GridPane.columnIndex="2"></ChoiceBox>
+                     <TextField fx:id="blindsTextField" GridPane.rowIndex="1" GridPane.columnIndex="2"></TextField>
                      <Label GridPane.rowIndex="2" GridPane.columnIndex="0">Ante:</Label>
-                     <CheckBox GridPane.rowIndex="2" GridPane.columnIndex="1"></CheckBox>
-                     <ChoiceBox GridPane.rowIndex="2" GridPane.columnIndex="2"></ChoiceBox>
+                     <CheckBox fx:id="antesCheckBox" GridPane.rowIndex="2" GridPane.columnIndex="1"></CheckBox>
+                     <TextField fx:id="antesTextField" GridPane.rowIndex="2" GridPane.columnIndex="2"></TextField>
                  </GridPane>
-                 <VBox prefHeight="200">
+                 <VBox prefHeight="250">
                      <HBox prefHeight="30" alignment="CENTER">
                          <Label>Players</Label>
                      </HBox>
@@ -93,12 +93,12 @@
                                  <Tooltip text="Delete selected contact."/>
                              </tooltip>
                          </Button>
-                         <Label>Button:</Label>
-                         <ChoiceBox></ChoiceBox>
+                         <!--<Label>Button:</Label>-->
+                         <!--<ChoiceBox></ChoiceBox>-->
                      </HBox>
                  </VBox>
                  <VBox prefHeight="100" alignment="CENTER">
-                     <Button prefHeight="60" prefWidth="Infinity">Run!</Button>
+                     <Button fx:id="newRunButton" prefHeight="60" prefWidth="Infinity" onAction="#newRunDialog">Run!</Button>
                  </VBox>
              </VBox>
             <VBox prefHeight="30.0" prefWidth="320.0" />

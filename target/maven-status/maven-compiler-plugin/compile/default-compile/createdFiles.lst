@@ -4,9 +4,11 @@ sample\Controller.class
 poker\Player.class
 poker\comprators\CardComparatorAceAsOne.class
 poker\Deck.class
+sample\RunController.class
 poker\comprators\CardComparatorColor.class
 poker\comprators\CardComparatorColorAceAsOne.class
 poker\Hand.class
+sample\SeatsController.class
 poker\Card.class
 poker\comprators\CardComparator.class
 sample\Main.class

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<VBox xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="sample.SeatsController"
+            prefHeight="250.0" prefWidth="250.0">
+    <TableView fx:id="playersTableSeats" prefWidth="200">
+        <columns>
+            <TableColumn fx:id="playerColumn" text="Nickname" prefWidth="150">
+                <cellValueFactory>
+                    <PropertyValueFactory property="nickname"/>
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="seatColumn" text="Seat" prefWidth="50">
+                <cellValueFactory>
+                    <PropertyValueFactory property="seat"/>
+                </cellValueFactory>
+            </TableColumn>
+        </columns>
+    </TableView>
+    <HBox>
+        <Label text="Set place:"></Label>
+        <TextField fx:id="seatField"></TextField>
+        <Button text="OK" onAction="#setSeat"></Button>
+    </HBox>
+</VBox>

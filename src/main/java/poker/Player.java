@@ -1,9 +1,14 @@
 package poker;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
 
 @Entity
 @Table(name = "Players")
+@Getter
+@Setter
 public class Player {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,7 +32,9 @@ public class Player {
     @Transient
     private Hand hand;
     @Transient
-    private int place, bet;
+    private int seat;
+    @Transient
+    private int bet;
     @Transient
     private boolean isPlaying;
     @Transient
@@ -42,7 +49,7 @@ public class Player {
         card1 = card2 = new Card();
         hand = new Hand();
         this.chips = chips;
-        place = -1;
+        seat = -1;
         bet = 0;
         bets[0] = bets[1] = bets[2] = bets[3] = 0;
         isPlaying = true;
@@ -61,108 +68,13 @@ public class Player {
         return sum;
     }
 
-    /* ==== GETTERS AND SETTERS ==== */
-
-    public String getNickname() {
-        return nickname;
-    }
-
-    @SuppressWarnings("unused")
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
-    }
-
-    public Card getCard1() {
-        return card1;
-    }
-
-    public void setCard1(Card card1) {
-        this.card1 = card1;
-    }
-
-    public Card getCard2() {
-        return card2;
-    }
-
-    public void setCard2(Card card2) {
-        this.card2 = card2;
-    }
-
-    public Hand getHand() {
-        return hand;
-    }
-
-    @SuppressWarnings("unused")
-    public void setHand(Hand hand) {
-        this.hand = hand;
-    }
-
     public void setHand(Board board) {
         this.hand = new Hand(this, board);
-    }
-
-    public int getChips() {
-        return chips;
     }
 
     public void setChips() {
         this.setChips(0);
     }
-
-    public void setChips(int chips) {
-        this.chips = chips;
-    }
-
-    @SuppressWarnings("unused")
-    public int getPlace() {
-        return place;
-    }
-
-    @SuppressWarnings("unused")
-    public void setPlace(int place) {
-        this.place = place;
-    }
-
-    public int getBet() {
-        return bet;
-    }
-
-    @SuppressWarnings("unused")
-    public void setBet(int bet) {
-        this.bet = bet;
-    }
-
-    public boolean isPlaying() {
-        return isPlaying;
-    }
-
-    public void setPlaying(boolean isPlaying) {
-        this.isPlaying = isPlaying;
-    }
-
-    public String getNotes() {
-        return notes;
-    }
-
-    public void setNotes(String notes) {
-        this.notes = notes;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-//    public int getCheck() {
-//        return check;
-//    }
-//
-//    public void setCheck(int check) {
-//        this.check = check;
-//    }
 
     //BETS//
 
@@ -175,11 +87,6 @@ public class Player {
 
     public int getBets(int round) {
         return bets[round];
-    }
-
-    @SuppressWarnings("unused")
-    public void setBets(int[] bets) {
-        this.bets = bets;
     }
 
     public void setBets(int round, int value) {

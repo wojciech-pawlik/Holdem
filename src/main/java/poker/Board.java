@@ -1,8 +1,13 @@
 package poker;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.*;
 import java.util.stream.IntStream;
 
+@Getter
+@Setter
 public class Board {
     private static final int PREFLOP = 0;
     private static final int FLOP = 1;
@@ -13,7 +18,7 @@ public class Board {
 
     private Deck deck;
     private Card flop1, flop2, flop3, turn, river;
-    private int pot, playersCount, placesCount, button, bigBlind, ante;
+    private int pot, placesCount, playersCount, button, bigBlind, ante;
     private int maxBet; //biggest bet in a deal
     private int afterRaise; //number of players after last raise
     private int folds; //number of players who fold
@@ -30,13 +35,14 @@ public class Board {
     }
 
     public Board(int placesCount) {
+        this.placesCount = placesCount;
+
         pots = new ArrayList<>();
         stacks = new ArrayList<>();
         players = new ArrayList<>();
         deck = new Deck();
         flop1 = flop2 = flop3 = turn = river = new Card();
         pot = 0;
-        this.placesCount = placesCount;
         playersCount = 0;
         button = -1;
         afterRaise = 0;
@@ -46,82 +52,30 @@ public class Board {
         random = new Random();
     }
 
-    /* ==== GETTERS AND SETTERS ==== */
+    public Board(int placesCount, int playersCount, int button, int bigBlind, int ante, ArrayList<Player> players) {
+        this.placesCount = placesCount;
+        this.playersCount = playersCount;
+        this.button = button;
+        this.bigBlind = bigBlind;
+        this.ante = ante;
+        this.players = players;
 
-    //CARDS//
+        pots = new ArrayList<>();
+        stacks = new ArrayList<>();
+        deck = new Deck();
+        flop1 = flop2 = flop3 = turn = river = new Card();
+        pot = 0;
+        afterRaise = 0;
+        maxBet = bigBlind;
+        stacksNormal = stacksAnte = folds = 0;
 
-    Card getFlop1() {
-        return flop1;
-    }
-
-    Card getFlop2() {
-        return flop2;
-    }
-
-    Card getFlop3() {
-        return flop3;
-    }
-
-    Card getTurn() {
-        return turn;
-    }
-
-    Card getRiver() {
-        return river;
-    }
-
-    public void setFlop1(Card flop1) {
-        this.flop1 = flop1;
-    }
-
-    public void setFlop2(Card flop2) {
-        this.flop2 = flop2;
-    }
-
-    public void setFlop3(Card flop3) {
-        this.flop3 = flop3;
-    }
-
-    public void setTurn(Card turn) {
-        this.turn = turn;
-    }
-
-    public void setRiver(Card river) {
-        this.river = river;
+        random = new Random();
     }
 
     // GETTERS, SETTERS, etc.//
 
     private void addPot(int pot) {
         this.pot += pot;
-    }
-
-    private void setPlayersCount(int playersCount) {
-        this.playersCount = playersCount;
-    }
-
-    @SuppressWarnings("unused")
-    private void setPlacesCount(int placesCount) {
-        this.placesCount = placesCount;
-    }
-
-    @SuppressWarnings("unused")
-    public void setButton(int button) {
-        this.button = button;
-    }
-
-    @SuppressWarnings("unused")
-    private void setBigBlind(int bigBlind) {
-        this.bigBlind = bigBlind;
-    }
-
-    @SuppressWarnings("unused")
-    private void setAnte(int ante) {
-        this.ante = ante;
-    }
-
-    private void setMaxBet(int maxBet) {
-        this.maxBet = maxBet;
     }
 
     private void resetNrRaise() {
@@ -138,50 +92,36 @@ public class Board {
 
     /* ==== SORT ==== */
 
-    private void sortStacks() {
+    public void sortStacks() {
         Collections.sort(stacks);
     }
 
     /* ==== METHODS ==== */
 
-    private void drawCards() {
+    public void drawCards() {
         for(int i = 0; i < playersCount; i++) {
             players.get(i).setCard1(deck.drawCard(random));
             players.get(i).setCard2(deck.drawCard(random));
         }
     }
 
-    private void drawFlop() {
+    public void drawFlop() {
         flop1 = deck.drawCard(random);
         flop2 = deck.drawCard(random);
         flop3 = deck.drawCard(random);
         System.out.printf("%s %s %s\n", flop1.getName(), flop2.getName(), flop3.getName());
     }
 
-    private void drawFlop(int f1, int f2, int f3) {
-        flop1 = deck.drawCard(f1);
-        flop2 = deck.drawCard(f2);
-        flop3 = deck.drawCard(f3);
-    }
-
-    private void drawTurn()
+    public void drawTurn()
     {
         turn = deck.drawCard(random);
         System.out.printf("%s %s %s\t%s\n", flop1.getName(), flop2.getName(), flop3.getName(), turn.getName());
     }
 
-    private void drawTurn(int t) {
-        turn = deck.drawCard(t);
-    }
-
-    private void drawRiver()
+    public void drawRiver()
     {
         river = deck.drawCard(random);
         System.out.printf("%s %s %s\t%s\t%s\n", flop1.getName(), flop2.getName(), flop3.getName(), turn.getName(), river.getName());
-    }
-
-    private void drawRiver(int r) {
-        river = deck.drawCard(r);
     }
 
     private void clearDeck()
@@ -198,7 +138,7 @@ public class Board {
         button = (button + 1) % playersCount;
     }
 
-    private void takeAnte() {
+    public void takeAnte() {
         for(int i = 0; i < playersCount; i++) {
             if(players.get(i).getChips() <= ante) {
                 pot += players.get(i).getChips();
@@ -218,7 +158,7 @@ public class Board {
         }
     }
 
-    private void takeBlinds() {
+    public void takeBlinds() {
         if(playersCount == 2) {
             if(players.get(button).getChips() <= bigBlind / 2) {
                 players.get(button).setBets(0, players.get(button).getChips());
@@ -286,7 +226,7 @@ public class Board {
         for(int i = 0; i < playersCount; i++) {
             System.out.printf("Enter a nickname of player %d: ", i + 1);
             Player player = new Player(i, scanner.next(), 10000, "");
-            player.setPlace(i);
+            player.setSeat(i);
             players.add(player);
         }
         displayPlayers();

@@ -1,8 +1,13 @@
 package poker;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.Random;
 
+@Getter
+@Setter
 public class Deck {
     private ArrayList<Card> cards;
 
@@ -14,11 +19,11 @@ public class Deck {
             }
     }
 
-    void shuffle() {
+    public void shuffle() {
         for(int i = 0; i < 52; i++) cards.get(i).setUsed(false);
     }
 
-    Card drawCard(Random random) {
+    public Card drawCard(Random random) {
         int number;
         while(true) {
             number = random.nextInt(52);
@@ -30,7 +35,7 @@ public class Deck {
         return cards.get(number);
     }
 
-    Card drawCard(int number) {
+    public Card drawCard(int number) {
         if(!cards.get(number).isUsed())
             cards.get(number).setUsed(true);
         return cards.get(number);
@@ -41,11 +46,5 @@ public class Deck {
         for(Card card : cards)
             if(card.isUsed()) count++;
         return count;
-    }
-
-    /* ==== GETTERS AND SETTERS ==== */
-
-    public ArrayList<Card> getCards() {
-        return cards;
     }
 }

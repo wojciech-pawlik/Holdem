@@ -1,5 +1,7 @@
 package poker;
 
+import lombok.Getter;
+import lombok.Setter;
 import poker.comprators.CardComparator;
 import poker.comprators.CardComparatorAceAsOne;
 import poker.comprators.CardComparatorColor;
@@ -8,6 +10,8 @@ import poker.comprators.CardComparatorColorAceAsOne;
 import java.util.ArrayList;
 import java.util.Collections;
 
+@Getter
+@Setter
 public class Hand {
     private int points;
     private String name, nameShort;
@@ -431,28 +435,6 @@ public class Hand {
                     + 14* bestHand.get(3).getValue() + bestHand.get(4).getValue();
         }
         return points;
-    }
-
-    /* ==== GETTERS AND SETTERS ==== */
-
-    public int getPoints() {
-        return points;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public ArrayList<Card> getBestHand() {
-        return bestHand;
-    }
-
-    public ArrayList<Card> getAllCards() {
-        return allCards;
-    }
-
-    public void setAllCards(ArrayList<Card> allCards) {
-        this.allCards = allCards;
     }
 
     public void destroyHand() {
