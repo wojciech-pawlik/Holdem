@@ -31,6 +31,7 @@ public class SeatsController {
 
     public void manageSeats(List<Player> list) {
         players.addAll(list);
+        for(int i = 0; i < players.size(); i++) players.get(i).setSeat(i);
     }
 
     @FXML
@@ -42,12 +43,22 @@ public class SeatsController {
     }
 
     public boolean checkIfCorrectlySelected(int tableSeats) {
-        for(int i = 0; i < players.size()-1; i++) {
-            if(players.get(i).getSeat() < 0 || players.get(i).getSeat() > tableSeats) return false;
-            for(int j = i+1; j < players.size(); j++)
-                if(players.get(i).getSeat() == players.get(j).getSeat())
-                    return false;
+        if(players.get(players.size()-1).getSeat() < 0 || players.get(players.size()-1).getSeat() >= tableSeats) {
+            System.out.println("false");
+            return false;
         }
+        for(int i = 0; i < players.size()-1; i++) {
+            if(players.get(i).getSeat() < 0 || players.get(i).getSeat() >= tableSeats) {
+                System.out.println("false");
+                return false;
+            }
+            for(int j = i+1; j < players.size(); j++)
+                if(players.get(i).getSeat() == players.get(j).getSeat()) {
+                    System.out.println("false");
+                    return false;
+                }
+        }
+        System.out.println("true");
         return true;
     }
 }

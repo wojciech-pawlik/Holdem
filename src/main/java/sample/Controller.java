@@ -2,15 +2,13 @@ package sample;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import lombok.Getter;
@@ -22,6 +20,9 @@ import poker.Player;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+
+import static sample.RunController.RUN_HEIGHT;
+import static sample.RunController.RUN_WIDTH;
 
 @Getter
 public class Controller implements Initializable {
@@ -207,10 +208,7 @@ public class Controller implements Initializable {
         var players = new ArrayList<Player>();
 
         Optional<ButtonType> result = dialog.showAndWait();
-        if(result.isPresent() && result.get() == ButtonType.OK && seatsController.checkIfCorrectlySelected(seats)) {
-            players.addAll(seatsController.getPlayers());
-        }
-        else if(result.isPresent() && result.get() == ButtonType.OK) {
+        if(!seatsController.checkIfCorrectlySelected(seats)) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Invalid seats of players!");
             alert.setHeaderText(null);
@@ -218,19 +216,24 @@ public class Controller implements Initializable {
             alert.showAndWait();
             return;
         }
+        if(result.isPresent() && result.get() == ButtonType.OK) {
+            players.addAll(seatsController.getPlayers());
+        }
 
         var board = new Board(seats, selectedPlayers.size(), 0, blinds, ante, players);
-        Parent root;
         try {
-            root = fxmlLoader.load(getClass().getResource("/run.fxml"));
+            var loader = new FXMLLoader(getClass().getResource("/run.fxml"));
+            var runController = new RunController(board);
+            loader.setController(runController);
+            AnchorPane runPane = loader.load();
             var stage = new Stage();
             stage.setTitle("Run #" + ++RUN_ID);
-            stage.setScene(new Scene(root, 1080,640));
+            stage.setScene(new Scene(runPane, RUN_WIDTH,RUN_HEIGHT));
             stage.show();
+
         } catch(IOException e) {
             e.printStackTrace();
         }
-
     }
 
     @FXML

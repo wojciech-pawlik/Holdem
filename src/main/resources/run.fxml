@@ -1,14 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="sample.RunController"
-            prefHeight="640.0" prefWidth="1080.0">
 
+<?import javafx.scene.control.Label?>
+<AnchorPane prefHeight="640.0" prefWidth="1080.0" xmlns="http://javafx.com/javafx/8.0.172-ea"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:id="runController"
+            stylesheets="run.css">
+   <children>
+       <Pane prefHeight="0" prefWidth="0" fx:id="player0">
+       </Pane>
+       <Pane prefHeight="0" prefWidth="0" fx:id="player1"/>
+       <Pane prefHeight="0" prefWidth="0" fx:id="player2"/>
+       <Pane prefHeight="0" prefWidth="0" fx:id="player3"/>
+       <Pane prefHeight="0" prefWidth="0" fx:id="player4"/>
+       <Pane prefHeight="0" prefWidth="0" fx:id="player5"/>
+       <Pane prefHeight="0" prefWidth="0" fx:id="player6"/>
+       <Pane prefHeight="0" prefWidth="0" fx:id="player7"/>
+       <Pane prefHeight="0" prefWidth="0" fx:id="player8"/>
+       <Pane prefHeight="0" prefWidth="0" fx:id="player9"/>
+       <Pane fx:id="boardPane"/>
+   </children>
 </AnchorPane>
