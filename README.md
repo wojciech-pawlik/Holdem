@@ -32,17 +32,17 @@ Fortunately, stackoverflow has came with help.
 2. I set controller to FXMLLoader, called AnchorPane from run.fxml by id and used it instead of root:
 ```
 var board = new Board(seats, selectedPlayers.size(), 0, blinds, ante, players);
-        try {
-            var loader = new FXMLLoader(getClass().getResource("/run.fxml"));
-            var runController = new RunController(board);
-            loader.setController(runController);
-            AnchorPane runPane = loader.load();
-            var stage = new Stage();
-            stage.setTitle("Run #" + ++RUN_ID);
-            stage.setScene(new Scene(runPane, RUN_WIDTH,RUN_HEIGHT));
-            stage.show();
+try {
+    var loader = new FXMLLoader(getClass().getResource("/run.fxml"));
+    var runController = new RunController(board);
+    loader.setController(runController);
+    AnchorPane runPane = loader.load();
+    var stage = new Stage();
+    stage.setTitle("Run #" + ++RUN_ID);
+    stage.setScene(new Scene(runPane, RUN_WIDTH,RUN_HEIGHT));
+    stage.show();
 
-        } catch(IOException e) {
-            e.printStackTrace();
-        }
+    } catch(IOException e) {
+        e.printStackTrace();
+    }
 ```
