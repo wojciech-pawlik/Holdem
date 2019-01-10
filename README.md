@@ -41,8 +41,7 @@ try {
     stage.setTitle("Run #" + ++RUN_ID);
     stage.setScene(new Scene(runPane, RUN_WIDTH,RUN_HEIGHT));
     stage.show();
-
-    } catch(IOException e) {
-        e.printStackTrace();
-    }
+} catch(IOException e) {
+     e.printStackTrace();
+}
 ```
