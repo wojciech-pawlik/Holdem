@@ -13,3 +13,35 @@ There are a few variables which helps to describe what's going on these cards: h
 - make a graphical interface (JavaFX)
 - create connection with a database (Hibernate)
 - make a 'Tournament' class
+
+# Technical problems which I have dealt with
+
+## Loading parameters to new Controller
+Standard way of creating new window failed. I tried to load parameter (Board) to Run window:
+- I had created a Board setter in class RunController then I called the setter in main Controller. Everything was OK up to my attempt to set up Panes depending on count of places on board. In method setSeats() which deploys panes I got null when I called it in initialize() method.
+- I moved setSeats() to Board setter but again it caused NullPointerException.
+- I created constructor of RunController with parameter of Board but it caused problem with loading FXML file.
+- Lambda expression in initialize() didn't help:
+```
+Platform.runLater(() -> {
+            setSeats();
+        });
+```
+Fortunately, stackoverflow has came with help.
+1. I deleted fx:controller from run.fxml and added fx:id.
+2. I set controller to FXMLLoader, called AnchorPane from run.fxml by id and used it instead of root:
+```
+var board = new Board(seats, selectedPlayers.size(), 0, blinds, ante, players);
+try {
+    var loader = new FXMLLoader(getClass().getResource("/run.fxml"));
+    var runController = new RunController(board);
+    loader.setController(runController);
+    AnchorPane runPane = loader.load();
+    var stage = new Stage();
+    stage.setTitle("Run #" + ++RUN_ID);
+    stage.setScene(new Scene(runPane, RUN_WIDTH,RUN_HEIGHT));
+    stage.show();
+} catch(IOException e) {
+     e.printStackTrace();
+}
+```
