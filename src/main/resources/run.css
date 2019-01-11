@@ -1,7 +1,28 @@
-Pane {
-    -fx-background-color: black;
+.nick-pane {
+    -fx-background-color: yellow;
 }
 
-#boardPane {
+.chips-pane {
+    -fx-background-color: green;
+}
+
+.card-pane {
+    -fx-background-color: blue;
+}
+
+.control-pane {
+    -fx-background-color: red;
+    -fx-end-margin: 10;
+}
+
+.board-info {
+    -fx-background-color: orange;
+}
+
+.player-action {
     -fx-background-color: brown;
 }
+
+/*#boardPane {*/
+    /*-fx-background-color: brown;*/
+/*}*/
