@@ -1,13 +1,12 @@
 package sample;
 
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -16,7 +15,6 @@ import javafx.scene.layout.Pane;
 import poker.Board;
 import poker.Player;
 
-import java.beans.EventHandler;
 import java.io.File;
 import java.net.URL;
 import java.util.*;
@@ -221,6 +219,7 @@ public class RunController implements Initializable {
             drawRiver();
         }
         else {
+            setPlayerAction(board.getPlayers().get(0), PREFLOP);
             playRound(PREFLOP);
             adjust();
         }
@@ -324,7 +323,7 @@ public class RunController implements Initializable {
         else turn = (board.getButton() + 1) % board.getPlayersCount();
 
         while(board.getAfterRaise() < board.getPlayersCount()) {
-            System.out.println(1);
+            System.out.println("Turn: " + turn);
             player = board.getPlayers().get(turn);
             if(board.canMove(player)) {
                 setPlayerAction(player, round);
@@ -334,10 +333,13 @@ public class RunController implements Initializable {
     }
 
     private void setPlayerAction(Player player, int round) {
+        playerAction.getScene().addEventFilter(MouseEvent.MOUSE_CLICKED, event -> System.out.println("Mouse clicked! " + event.getSource()));
+
         var playerInfo = new Label();
         var sb = new StringBuilder();
         sb.append("Player turn: ").append(player.getNickname());
         configureLabel(playerInfo, sb.toString(), 10, 10, "");
+        playerAction.getChildren().add(playerInfo);
 
         /* CAN'T CALL */
         if (board.checkOrRaise(player, round) || board.checkOrBet(player, round)) {
@@ -357,10 +359,11 @@ public class RunController implements Initializable {
                 configureButton(raiseButton, "Raise", CONTROL_WIDTH - 20, CONTROL_COMPONENT_HEIGHT,
                         10, 2 * CONTROL_HEIGHT / 3 + 20, CONTROL_BUTTON);
                 raiseButton.setOnMouseClicked(mouseEvent -> {
+                    System.out.println("Raise");
                     applyBet(player, round, Integer.parseInt(raiseSize.getText()));
-                    clearPane(playerAction);
                     return;
                 });
+                playerAction.getChildren().add(raiseButton);
             } else {
                 var betSize = new TextField();
                 var betButton = new Button();
@@ -368,10 +371,11 @@ public class RunController implements Initializable {
                 configureButton(betButton, "Bet", CONTROL_WIDTH - 20, CONTROL_COMPONENT_HEIGHT,
                         10, 2 * CONTROL_HEIGHT / 3 + 20, CONTROL_BUTTON);
                 betButton.setOnMouseClicked(mouseEvent -> {
+                    System.out.println("Bet");
                     applyBet(player, round, Integer.parseInt(betSize.getText()));
-                    clearPane(playerAction);
                     return;
                 });
+                playerAction.getChildren().add(betButton);
             }
         }
         else {
@@ -381,16 +385,16 @@ public class RunController implements Initializable {
             configureButton(foldButton, "Fold", CONTROL_WIDTH - 20, CONTROL_HEIGHT/6, 10, CONTROL_HEIGHT/3, CONTROL_BUTTON);
             foldButton.setOnMouseClicked(mouseEvent -> {
                 applyFold(player, round);
-                clearPane(playerAction);
                 return;
             });
+            playerAction.getChildren().add(foldButton);
 
             configureButton(callButton, "Call", CONTROL_WIDTH - 20, CONTROL_HEIGHT/6, 10, CONTROL_HEIGHT/2, CONTROL_BUTTON);
             callButton.setOnMouseClicked(mouseEvent -> {
                 applyCall(player, round);
-                clearPane(playerAction);
                 return;
             });
+            playerAction.getChildren().add(callButton);
 
             if(!board.foldOrCall(player, round)) {
                 System.out.println("...and raise");
@@ -399,6 +403,7 @@ public class RunController implements Initializable {
 
                 configureTextField(raiseSize, board.getBigBlind() + "",
                         CONTROL_WIDTH - 20, CONTROL_HEIGHT/6, 10, 2*CONTROL_HEIGHT/3, "");
+                playerAction.getChildren().add(raiseSize);
 
                 configureButton(raiseButton, "Raise", CONTROL_WIDTH - 20, CONTROL_COMPONENT_HEIGHT,
                         10, 5 * CONTROL_COMPONENT_HEIGHT, CONTROL_BUTTON);
@@ -407,6 +412,7 @@ public class RunController implements Initializable {
                     clearPane(playerAction);
                     return;
                 });
+                playerAction.getChildren().add(raiseButton);
             }
         }
     }
@@ -447,6 +453,7 @@ public class RunController implements Initializable {
             player.setBets(round, board.getMaxBet());
         }
         board.plusAfterRaise();
+        clearPane(playerAction);
     }
 
     private void applyFold(Player player, int round) {

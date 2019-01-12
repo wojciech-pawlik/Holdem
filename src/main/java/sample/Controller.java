@@ -79,26 +79,14 @@ public class Controller implements Initializable {
 
     @FXML
     public void showAddPlayerDialog() {
-        System.out.println("showAddPlayerDialog");
-        Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.initOwner(mainPanel.getScene().getWindow());
-        dialog.setTitle("Add new contact");
-        var fxmlLoader = new FXMLLoader();
-        fxmlLoader.setLocation(getClass().getResource("/edit.fxml"));
-        loadDialog(dialog, fxmlLoader);
+        var fxmlLoader = createLoader("edit.fxml");
+        var dialog = createDialog(fxmlLoader, "Add new contact");
 
         Optional<ButtonType> result = dialog.showAndWait();
         if(result.isPresent() && result.get() == ButtonType.OK) {
             EditController editController = fxmlLoader.getController();
             Player player = editController.getNewPlayer();
-            Session session = new Configuration()
-                    .configure("/hibernate.cfg.xml")
-                    .addAnnotatedClass(Player.class)
-                    .buildSessionFactory().getCurrentSession();
-            session.beginTransaction();
-            session.save(player);
-            session.getTransaction().commit();
-            session.close();
+            createSession(player);
             refreshTable(player);
         }
     }
@@ -115,26 +103,15 @@ public class Controller implements Initializable {
             return;
         }
 
-        Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.initOwner(mainPanel.getScene().getWindow());
-        dialog.setTitle("Edit contact");
-        var fxmlLoader = new FXMLLoader();
-        fxmlLoader.setLocation(getClass().getResource("/edit.fxml"));
-        loadDialog(dialog, fxmlLoader);
+        var fxmlLoader = createLoader("edit.fxml");
+        var dialog = createDialog(fxmlLoader, "Edit contact");
         EditController editController = fxmlLoader.getController();
         editController.editPlayer(selectedPlayer);
 
         Optional<ButtonType> result = dialog.showAndWait();
         if(result.isPresent() && result.get() == ButtonType.OK) {
             editController.updatePlayer(selectedPlayer);
-            Session session = new Configuration()
-                    .configure("/hibernate.cfg.xml")
-                    .addAnnotatedClass(Player.class)
-                    .buildSessionFactory().getCurrentSession();
-            session.beginTransaction();
-            session.update(selectedPlayer);
-            session.getTransaction().commit();
-            session.close();
+            createSession(selectedPlayer);
             refreshTable(selectedPlayer);
         }
     }
@@ -196,12 +173,8 @@ public class Controller implements Initializable {
             return;
         }
 
-        var dialog = new Dialog<ButtonType>();
-        dialog.initOwner(mainPanel.getScene().getWindow());
-        dialog.setTitle("Seat players: ");
-        var fxmlLoader = new FXMLLoader();
-        fxmlLoader.setLocation(getClass().getResource("/seats.fxml"));
-        loadDialog(dialog, fxmlLoader);
+        var fxmlLoader = createLoader("seats.fxml");
+        var dialog = createDialog(fxmlLoader, "Seat players");
         SeatsController seatsController = fxmlLoader.getController();
         seatsController.manageSeats(selectedPlayers);
         var players = new ArrayList<Player>();
@@ -253,5 +226,30 @@ public class Controller implements Initializable {
         playersTable.setItems(getPlayers());
         playersTable.getSelectionModel().select(player);
         playersTable.scrollTo(player);
+    }
+
+    private void createSession(Player player) {
+        Session session = new Configuration()
+                .configure("/hibernate.cfg.xml")
+                .addAnnotatedClass(Player.class)
+                .buildSessionFactory().getCurrentSession();
+        session.beginTransaction();
+        session.update(player);
+        session.getTransaction().commit();
+        session.close();
+    }
+
+    private Dialog createDialog(FXMLLoader fxmlLoader, String title) {
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.initOwner(mainPanel.getScene().getWindow());
+        dialog.setTitle(title);
+        loadDialog(dialog, fxmlLoader);
+        return dialog;
+    }
+
+    private FXMLLoader createLoader(String filename) {
+        var fxmlLoader = new FXMLLoader();
+        fxmlLoader.setLocation(getClass().getResource("/" + filename));
+        return fxmlLoader;
     }
 }
