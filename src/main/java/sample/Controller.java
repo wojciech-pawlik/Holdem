@@ -39,7 +39,6 @@ public class Controller implements Initializable {
     @FXML private TableColumn<Player, String> nicknameColumn;
     @FXML private TableColumn<Player, Integer> chipsColumn;
     @FXML private TableColumn<Player, String> notesColumn;
-//    @FXML private TableColumn selectColumn;
 
     @FXML private Button newRunButton;
 
@@ -54,12 +53,12 @@ public class Controller implements Initializable {
         blindsTextField.setText(""+10);
         antesTextField.setText(""+0.1);
 
-        idColumn.setCellValueFactory(new PropertyValueFactory<Player, Integer>("id"));
-        nicknameColumn.setCellValueFactory(new PropertyValueFactory<Player, String>("nickname"));
-        chipsColumn.setCellValueFactory(new PropertyValueFactory<Player, Integer>("chips"));
-        notesColumn.setCellValueFactory(new PropertyValueFactory<Player, String>("notes"));
-//        selectColumn.setCellValueFactory(new PropertyValueFactory<Player, Integer>("check"));
-        playersTable.setItems(getPlayers());
+        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        nicknameColumn.setCellValueFactory(new PropertyValueFactory<>("nickname"));
+        chipsColumn.setCellValueFactory(new PropertyValueFactory<>("chips"));
+        notesColumn.setCellValueFactory(new PropertyValueFactory<>("notes"));
+        playersList = getPlayers();
+        playersTable.setItems(playersList);
 
         playersTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     }

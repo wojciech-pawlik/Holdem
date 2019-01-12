@@ -7,12 +7,11 @@
 }
 
 .card-pane {
-    -fx-background-color: blue;
+    -fx-background-color: white;
 }
 
 .control-pane {
     -fx-background-color: red;
-    -fx-end-margin: 10;
 }
 
 .board-info {
@@ -21,6 +20,12 @@
 
 .player-action {
     -fx-background-color: brown;
+}
+
+.nick-label {
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+    -fx-start-margin: 0;
 }
 
 /*#boardPane {*/

@@ -4,6 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.Arrays;
+
+import static poker.Board.PREFLOP;
 
 @Entity
 @Table(name = "Players")
@@ -62,10 +65,8 @@ public class Player {
     }
 
     public int addedToPot(int round) {
-        int sum = 0;
-        for(int i = 0; i < round; i++)
-            sum += bets[i];
-        return sum;
+        if(round == PREFLOP) return 0;
+        return Arrays.stream(bets).limit(round - 1).sum();
     }
 
     public void setHand(Board board) {
@@ -78,11 +79,8 @@ public class Player {
 
     //BETS//
 
-    @SuppressWarnings("unused")
     public int getBets() {
-        int sum = 0;
-        for(int i = 0; i < 4; i++) sum += bets[i];
-        return sum;
+        return Arrays.stream(bets).sum();
     }
 
     public int getBets(int round) {

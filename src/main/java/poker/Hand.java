@@ -301,7 +301,7 @@ public class Hand {
             bestHand.add(allCards.get(allCards.size()-1));
             int index = 1;
             while(bestHand.size() < 5) {
-                if(allCards.get(allCards.size()-1 - index).getValue() == bestHand.get(bestHand.size()-1).getValue())
+                if(allCards.get(allCards.size()-1 - index).getValue() == bestHand.get(bestHand.size()-1 - index+1).getValue())
                     index++;
                 else {
                     if(bestHand.get(bestHand.size()-1).getValue() - allCards.get(allCards.size()-1 - index).getValue() > 1)

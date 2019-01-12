@@ -9,10 +9,10 @@ import java.util.stream.IntStream;
 @Getter
 @Setter
 public class Board {
-    private static final int PREFLOP = 0;
-    private static final int FLOP = 1;
-    private static final int TURN = 2;
-    private static final int RIVER = 3;
+    public static final int PREFLOP = 0;
+    public static final int FLOP = 1;
+    public static final int TURN = 2;
+    public static final int RIVER = 3;
 
     private static final int DRAW_COUNT = 10000; //COUNTING PROBABILITY
 
@@ -74,16 +74,18 @@ public class Board {
 
     // GETTERS, SETTERS, etc.//
 
-    private void addPot(int pot) {
-        this.pot += pot;
-    }
+    public void addPot(int pot) { this.pot += pot; }
 
-    private void resetNrRaise() {
-        this.afterRaise = 1;
-    }
+    public void resetAfterRaise() { afterRaise = 1; }
+
+    public void plusAfterRaise() { afterRaise++; }
+
+    public void plusFolds() { folds++; }
+
+    public void plusStacksNormal() { stacksNormal++; }
 
     // == stacks ante without duplicates == //
-    private int countStacksAnte() {
+    public int countStacksAnte() {
         int count = 0;
         for(Integer i : stacks)
             if(i <= ante) count++;
@@ -124,7 +126,7 @@ public class Board {
         System.out.printf("%s %s %s\t%s\t%s\n", flop1.getName(), flop2.getName(), flop3.getName(), turn.getName(), river.getName());
     }
 
-    private void clearDeck()
+    public void clearDeck()
     {
         flop1 = flop2 = flop3 = turn = river = new Card();
         pot = 0;
@@ -134,7 +136,7 @@ public class Board {
         stacksNormal = stacksAnte = folds = 0;
     }
 
-    private void slideButton() {
+    public void slideButton() {
         button = (button + 1) % playersCount;
     }
 
@@ -339,7 +341,7 @@ public class Board {
         }
     }
 
-    private void adjust() {
+    public void adjust() {
         System.out.println("adjust()");
 
         // <--- Sort and reduce list of stacks ---> //
@@ -394,6 +396,37 @@ public class Board {
                     players.get(i).setBet(stacks.get(stacks.size() - 1));
     }
 
+    // === ACTION TYPES === //
+
+    public boolean checkOrRaise(Player player, int round) {
+        return round == PREFLOP && player.getBets(PREFLOP) == maxBet;
+    }
+
+    public boolean checkOrBet(Player player, int round) {
+        return round > PREFLOP && player.getBets(round) == 0;
+    }
+
+    public boolean foldOrCall(Player player, int round) {
+        return player.getBets(round) < maxBet &&
+                (afterRaise == playersCount - 1 &&
+                        players.get((player.getSeat() + 1) % players.size()).getChips() - players.get((player.getSeat() + 1) % players.size()).getBet() == 0 ||
+                player.getChips() - player.addedToPot(round) + player.getBets(round) < maxBet);
+    }
+
+    public boolean allIn(Player player) {
+        return player.getChips() == player.getBet();
+    }
+
+    public boolean lessThanBigBlindAbove(Player player, int round) {
+        return player.getChips() - player.getBets() - maxBet < bigBlind;
+    }
+
+    public boolean canMove(Player player) {
+        return player.isPlaying() && player.getChips() > player.getBet();
+    }
+
+    // === CONSOLE GAME === //
+
     private void preflop(Scanner scanner) {
         System.out.println("preflop()");
         displayPlayers(true);
@@ -420,10 +453,10 @@ public class Board {
 
                             else {
                                 b = scanner.nextInt();
-                                if(b < maxBet + bigBlind)
-                                    b = maxBet + bigBlind;
-                                else if(b > players.get(turn).getChips())
+                                if(b > players.get(turn).getChips())
                                     b = players.get(turn).getChips();
+                                else if(b < maxBet + bigBlind)
+                                    b = maxBet + bigBlind;
                             }
 
                             System.out.println("Bet size: " + b);
@@ -431,7 +464,7 @@ public class Board {
                             players.get(turn).addBets(PREFLOP, b);
                             setMaxBet(b);
 
-                            resetNrRaise();
+                            resetAfterRaise();
                             break;
 
                         default:
@@ -440,7 +473,7 @@ public class Board {
                     }
                 }
 
-                // === RAISE POSSIBILITY === //
+                // === CALL POSSIBILITY === //
                 else if(players.get(turn).getBets(PREFLOP) < maxBet) {
                     System.out.printf("Player %s: 1 - raise, 2 - call, 3 - fold).\n", players.get(turn).getNickname());
                     String choice = scanner.next();
@@ -466,7 +499,7 @@ public class Board {
                             addPot(b - players.get(turn).getBets(PREFLOP));
                             players.get(turn).setBets(0, b);
 
-                            resetNrRaise();
+                            resetAfterRaise();
                             setMaxBet(b);
                             break;
 
@@ -492,7 +525,7 @@ public class Board {
                 }
 
                 players.get(turn).bet();
-                if(players.get(turn).getChips() == players.get(turn).getBet()) {
+                if(allIn(players.get(turn))) {
                     stacksNormal++;
                     stacks.add(players.get(turn).getChips() + ante);
                 }
@@ -529,7 +562,7 @@ public class Board {
                             players.get(turn).setBets(part, b);
                             System.out.println("Bet " + b);
 
-                            resetNrRaise();
+                            resetAfterRaise();
                             setMaxBet(b);
                             break;
                         case 2:
@@ -576,7 +609,7 @@ public class Board {
                             players.get(turn).setBets(part, b);
 
                             setMaxBet(players.get(turn).getBets(part));
-                            resetNrRaise();
+                            resetAfterRaise();
 
                             break;
                         default:
@@ -598,7 +631,7 @@ public class Board {
         }
     }
 
-    private void distributeFolds() {
+    public void distributeFolds() {
         System.out.println("distributeFolds()");
         for(int i = 0; i < playersCount; i++) {
             players.get(i).subtractChips(players.get(i).getBet()) ;
@@ -610,7 +643,7 @@ public class Board {
         displayPlayersAfterDistribution();
     }
 
-    private void checkHands() {
+    public void checkHands() {
         checkHands(false);
     }
 
@@ -629,7 +662,7 @@ public class Board {
     }
 
     // === distribute chips after a round with multiple pots === //
-    private void distribute() {
+    public void distribute() {
         System.out.println("distribute()");
         for(int i = 0; i < playersCount; i++)
             players.get(i).subtractChips(players.get(i).getBet());
@@ -733,7 +766,7 @@ public class Board {
 
     // <=== CALCULATION METHODS ===> //
 
-    private void calculate(int part) {
+    public void calculate(int part) {
 //        System.out.println("calculate()");
         var wins = new float[players.size()];
         var chances = new float[players.size()];
@@ -814,7 +847,7 @@ public class Board {
             }
     }
 
-    private void checkHands(float[] wins) {
+    public void checkHands(float[] wins) {
         var points = new ArrayList<Integer>();
         int winnersCount = 0;
         checkHands();
