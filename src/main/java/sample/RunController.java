@@ -1,6 +1,7 @@
 package sample;
 
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -37,7 +38,7 @@ public class RunController implements Initializable {
 
     private static final int CONTROL_WIDTH = 300;
     private static final int CONTROL_HEIGHT = 600;
-    private static final int CONTROL_COMPONENT_HEIGHT = CONTROL_HEIGHT/6;
+    private static final int CONTROL_COMPONENT_HEIGHT = CONTROL_HEIGHT/12;
 
 
     private static final String CARD_PANE_STYLE = "card-pane";
@@ -50,6 +51,8 @@ public class RunController implements Initializable {
     private static final int CARD2_PANE = 1;
     private static final int NICK_PANE = 2;
     private static final int CHIPS_PANE = 3;
+
+    private int turn;
 
     private Board board;
     private ArrayList<Pane> playerPanes;
@@ -70,10 +73,8 @@ public class RunController implements Initializable {
         configureControlPane();
         playerPanes = new ArrayList<>(board.getPlacesCount());
 
-        Platform.runLater(() -> {
-            setSeats();
-            runGame();
-        });
+        setSeats();
+        runGame();
     }
 
     private void setSeats() {
@@ -203,10 +204,6 @@ public class RunController implements Initializable {
         tf.getStyleClass().add(styleClass);
     }
 
-    private void clearPane(Pane pane) {
-        pane.getChildren().removeAll(pane.getChildren());
-    }
-
     private void runGame() {
         prepareBoard();
         displayPlayers();
@@ -312,9 +309,7 @@ public class RunController implements Initializable {
 
     private void playRound(int round) {
 //        board.calculate(round);
-        int turn; // which player is on action
         board.setAfterRaise(1);
-        Player player;
         System.out.println(0);
 
         // === who begins === //
@@ -322,19 +317,27 @@ public class RunController implements Initializable {
             turn = board.getPlayersCount() == 2 ? board.getButton() : (board.getButton() + 3) % board.getPlayersCount();
         else turn = (board.getButton() + 1) % board.getPlayersCount();
 
-        while(board.getAfterRaise() < board.getPlayersCount()) {
-            System.out.println("Turn: " + turn);
-            player = board.getPlayers().get(turn);
-            if(board.canMove(player)) {
-                setPlayerAction(player, round);
+        var task = new Task<Void>() {
+            @Override
+            public Void call() {
+                while(board.getAfterRaise() < board.getPlayersCount()) {
+                    System.out.println("Turn: " + turn);
+                    var player = board.getPlayers().get(turn);
+                    if(board.canMove(player))
+                        setPlayerAction(player, round);
+                    turn = (turn + 1) % board.getPlayers().size();
+                }
+                return null;
             }
-            turn = (turn + 1) % board.getPlayers().size();
-        }
+        };
+        new Thread(task).start();
+        task.setOnSucceeded(event -> {
+            System.out.println("OK!");
+        });
+
     }
 
     private void setPlayerAction(Player player, int round) {
-        playerAction.getScene().addEventFilter(MouseEvent.MOUSE_CLICKED, event -> System.out.println("Mouse clicked! " + event.getSource()));
-
         var playerInfo = new Label();
         var sb = new StringBuilder();
         sb.append("Player turn: ").append(player.getNickname());
@@ -372,7 +375,7 @@ public class RunController implements Initializable {
                         10, 2 * CONTROL_HEIGHT / 3 + 20, CONTROL_BUTTON);
                 betButton.setOnMouseClicked(mouseEvent -> {
                     System.out.println("Bet");
-                    applyBet(player, round, Integer.parseInt(betSize.getText()));
+                setPlayerAction(player, round);    applyBet(player, round, Integer.parseInt(betSize.getText()));
                     return;
                 });
                 playerAction.getChildren().add(betButton);
@@ -409,7 +412,7 @@ public class RunController implements Initializable {
                         10, 5 * CONTROL_COMPONENT_HEIGHT, CONTROL_BUTTON);
                 raiseButton.setOnMouseClicked(mouseEvent -> {
                     applyBet(player, round, Integer.parseInt(raiseSize.getText()));
-                    clearPane(playerAction);
+                    playerAction.getChildren().clear();
                     return;
                 });
                 playerAction.getChildren().add(raiseButton);
@@ -439,7 +442,7 @@ public class RunController implements Initializable {
         player.addBets(round, bet);
         board.setMaxBet(bet);
         board.resetAfterRaise();
-        clearPane(playerAction);
+        playerAction.getChildren().clear();
     }
 
     private void applyCall(Player player, int round) {
@@ -453,19 +456,19 @@ public class RunController implements Initializable {
             player.setBets(round, board.getMaxBet());
         }
         board.plusAfterRaise();
-        clearPane(playerAction);
+        playerAction.getChildren().clear();
     }
 
     private void applyFold(Player player, int round) {
         player.setPlaying(false);
         board.plusFolds();
         board.plusAfterRaise();
-        clearPane(playerAction);
+        playerAction.getChildren().clear();
     }
 
     private void applyCheck(Player player, int round) {
         board.plusAfterRaise();
-        clearPane(playerAction);
+        playerAction.getChildren().clear();
     }
 
     private void distributeFolds() {
