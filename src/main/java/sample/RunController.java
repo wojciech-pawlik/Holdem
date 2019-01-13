@@ -2,6 +2,7 @@ package sample;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -74,7 +75,10 @@ public class RunController implements Initializable {
         playerPanes = new ArrayList<>(board.getPlacesCount());
 
         setSeats();
-        runGame();
+        Platform.runLater(() -> {
+            runGame();
+        });
+
     }
 
     private void setSeats() {
@@ -331,7 +335,7 @@ public class RunController implements Initializable {
             }
         };
         new Thread(task).start();
-        task.setOnSucceeded(event -> {
+        task.setOnSucceeded((WorkerStateEvent event) -> {
             System.out.println("OK!");
         });
 
@@ -351,7 +355,6 @@ public class RunController implements Initializable {
             configureButton(checkButton, "Check", CONTROL_WIDTH - 20, CONTROL_COMPONENT_HEIGHT, 10, CONTROL_HEIGHT / 3, CONTROL_BUTTON);
             checkButton.setOnMouseClicked(mouseEvent -> {
                 applyCheck(player, round);
-                return;
             });
             playerAction.getChildren().add(checkButton);
             if (board.checkOrRaise(player, round)) {
@@ -364,7 +367,6 @@ public class RunController implements Initializable {
                 raiseButton.setOnMouseClicked(mouseEvent -> {
                     System.out.println("Raise");
                     applyBet(player, round, Integer.parseInt(raiseSize.getText()));
-                    return;
                 });
                 playerAction.getChildren().add(raiseButton);
             } else {
@@ -376,7 +378,6 @@ public class RunController implements Initializable {
                 betButton.setOnMouseClicked(mouseEvent -> {
                     System.out.println("Bet");
                 setPlayerAction(player, round);    applyBet(player, round, Integer.parseInt(betSize.getText()));
-                    return;
                 });
                 playerAction.getChildren().add(betButton);
             }
@@ -388,14 +389,12 @@ public class RunController implements Initializable {
             configureButton(foldButton, "Fold", CONTROL_WIDTH - 20, CONTROL_HEIGHT/6, 10, CONTROL_HEIGHT/3, CONTROL_BUTTON);
             foldButton.setOnMouseClicked(mouseEvent -> {
                 applyFold(player, round);
-                return;
             });
             playerAction.getChildren().add(foldButton);
 
             configureButton(callButton, "Call", CONTROL_WIDTH - 20, CONTROL_HEIGHT/6, 10, CONTROL_HEIGHT/2, CONTROL_BUTTON);
             callButton.setOnMouseClicked(mouseEvent -> {
                 applyCall(player, round);
-                return;
             });
             playerAction.getChildren().add(callButton);
 
@@ -413,7 +412,6 @@ public class RunController implements Initializable {
                 raiseButton.setOnMouseClicked(mouseEvent -> {
                     applyBet(player, round, Integer.parseInt(raiseSize.getText()));
                     playerAction.getChildren().clear();
-                    return;
                 });
                 playerAction.getChildren().add(raiseButton);
             }
