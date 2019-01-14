@@ -41,17 +41,27 @@ public class RunController implements Initializable {
     private static final int CONTROL_HEIGHT = 600;
     private static final int CONTROL_COMPONENT_HEIGHT = CONTROL_HEIGHT/12;
 
-
     private static final String CARD_PANE_STYLE = "card-pane";
     private static final String NICK_PANE_STYLE = "nick-pane";
     private static final String CHIPS_PANE_STYLE = "chips-pane";
     private static final String BOARD_IMAGE_STYLE = "board-image";
     private static final String CONTROL_BUTTON = "control-button";
 
+    // === ENUM PANES === //
+    // PLAYER PANE
     private static final int CARD1_PANE = 0;
     private static final int CARD2_PANE = 1;
     private static final int NICK_PANE = 2;
     private static final int CHIPS_PANE = 3;
+    // PLAYER ACTION CONTROL
+    private static final int PLAYER_INFO = 0;
+    private static final int CHECK_BUTTON = 1;
+    private static final int RAISE_SIZE = 2;
+    private static final int RAISE_BUTTON = 3;
+    private static final int BET_SIZE = 4;
+    private static final int BET_BUTTON = 5;
+    private static final int FOLD_BUTTON = 6;
+    private static final int CALL_BUTTON = 7;
 
     private int turn;
 
@@ -75,9 +85,8 @@ public class RunController implements Initializable {
         playerPanes = new ArrayList<>(board.getPlacesCount());
 
         setSeats();
-        Platform.runLater(() -> {
-            runGame();
-        });
+        configurePlayerAction();
+        runGame();
 
     }
 
@@ -198,6 +207,42 @@ public class RunController implements Initializable {
         configureListView(actionList, CONTROL_WIDTH - 20, CONTROL_HEIGHT / 4, 5, 70, "action-list");
 
         boardInfo.getChildren().addAll(Arrays.asList(potLabelTitle, potLabel, actionList));
+    }
+
+    private void configurePlayerAction() {
+        var playerInfo = new Label(); var checkButton = new Button(); var raiseSize = new TextField(); var raiseButton = new Button();
+        var betSize = new TextField(); var betButton = new Button(); var foldButton = new Button(); var callButton = new Button();
+
+        configureLabel(playerInfo, "", 10, 10, "");
+        playerAction.getChildren().add(playerInfo);
+
+        configureButton(checkButton, "Check", CONTROL_WIDTH - 20, CONTROL_COMPONENT_HEIGHT,
+                10, CONTROL_COMPONENT_HEIGHT, CONTROL_BUTTON);
+        playerAction.getChildren().add(checkButton);
+
+        configureTextField(raiseSize, board.getBigBlind() + "", CONTROL_WIDTH - 20, CONTROL_COMPONENT_HEIGHT,
+                10, 3*CONTROL_COMPONENT_HEIGHT, "");
+        configureButton(raiseButton, "Raise", CONTROL_WIDTH - 20, CONTROL_COMPONENT_HEIGHT,
+                10, 2 *CONTROL_COMPONENT_HEIGHT, CONTROL_BUTTON);
+        playerAction.getChildren().add(raiseSize);
+        playerAction.getChildren().add(raiseButton);
+
+        configureTextField(betSize, "0", CONTROL_WIDTH - 20, CONTROL_COMPONENT_HEIGHT,
+                10, 3*CONTROL_COMPONENT_HEIGHT, "");
+        configureButton(betButton, "Bet", CONTROL_WIDTH - 20, CONTROL_COMPONENT_HEIGHT,
+                10, 4*CONTROL_COMPONENT_HEIGHT, CONTROL_BUTTON);
+        playerAction.getChildren().add(betSize);
+        playerAction.getChildren().add(betButton);
+
+        configureButton(foldButton, "Fold", CONTROL_WIDTH - 20, CONTROL_COMPONENT_HEIGHT,
+                10, CONTROL_COMPONENT_HEIGHT, CONTROL_BUTTON);
+        playerAction.getChildren().add(foldButton);
+
+        configureButton(callButton, "Call", CONTROL_WIDTH - 20, CONTROL_COMPONENT_HEIGHT,
+                10, 2*CONTROL_COMPONENT_HEIGHT, CONTROL_BUTTON);
+        playerAction.getChildren().add(callButton);
+
+        for(Node node : playerAction.getChildren()) node.setVisible(false);
     }
 
     private void configureTextField(TextField tf, String text, int width, int height, int posX, int posY, String styleClass) {
@@ -342,82 +387,69 @@ public class RunController implements Initializable {
     }
 
     private void setPlayerAction(Player player, int round) {
-        var playerInfo = new Label();
         var sb = new StringBuilder();
         sb.append("Player turn: ").append(player.getNickname());
-        configureLabel(playerInfo, sb.toString(), 10, 10, "");
-        playerAction.getChildren().add(playerInfo);
+        var playerInfo = (Label) playerAction.getChildren().get(PLAYER_INFO);
+        playerInfo.setText(sb.toString());
+        playerInfo.setVisible(true);
 
         /* CAN'T CALL */
         if (board.checkOrRaise(player, round) || board.checkOrBet(player, round)) {
             System.out.println("Check or raise");
-            var checkButton = new Button();
-            configureButton(checkButton, "Check", CONTROL_WIDTH - 20, CONTROL_COMPONENT_HEIGHT, 10, CONTROL_HEIGHT / 3, CONTROL_BUTTON);
+            var checkButton = (Button) playerAction.getChildren().get(CHECK_BUTTON);
             checkButton.setOnMouseClicked(mouseEvent -> {
                 applyCheck(player, round);
             });
-            playerAction.getChildren().add(checkButton);
+            checkButton.setVisible(true);
+
             if (board.checkOrRaise(player, round)) {
-                var raiseSize = new TextField();
-                var raiseButton = new Button();
-                configureTextField(raiseSize, board.getBigBlind() + "",
-                        CONTROL_WIDTH - 20, CONTROL_COMPONENT_HEIGHT, 10, CONTROL_HEIGHT/2 + 10, "");
-                configureButton(raiseButton, "Raise", CONTROL_WIDTH - 20, CONTROL_COMPONENT_HEIGHT,
-                        10, 2 * CONTROL_HEIGHT / 3 + 20, CONTROL_BUTTON);
+                var raiseSize = (TextField) playerAction.getChildren().get(RAISE_SIZE);
+                var raiseButton = (Button) playerAction.getChildren().get(RAISE_BUTTON);
                 raiseButton.setOnMouseClicked(mouseEvent -> {
                     System.out.println("Raise");
                     applyBet(player, round, Integer.parseInt(raiseSize.getText()));
                 });
-                playerAction.getChildren().add(raiseButton);
+                raiseSize.setVisible(true);
+                raiseButton.setVisible(true);
             } else {
-                var betSize = new TextField();
-                var betButton = new Button();
-                configureTextField(betSize, "0", CONTROL_WIDTH - 20, CONTROL_COMPONENT_HEIGHT, 10, CONTROL_HEIGHT / 2 + 10, "");
-                configureButton(betButton, "Bet", CONTROL_WIDTH - 20, CONTROL_COMPONENT_HEIGHT,
-                        10, 2 * CONTROL_HEIGHT / 3 + 20, CONTROL_BUTTON);
+                var betSize = (TextField) playerAction.getChildren().get(BET_SIZE);
+                var betButton = (Button) playerAction.getChildren().get(BET_BUTTON);
                 betButton.setOnMouseClicked(mouseEvent -> {
                     System.out.println("Bet");
-                setPlayerAction(player, round);    applyBet(player, round, Integer.parseInt(betSize.getText()));
+                    setPlayerAction(player, round);
+                    applyBet(player, round, Integer.parseInt(betSize.getText()));
                 });
-                playerAction.getChildren().add(betButton);
+                betSize.setVisible(true);
+                betButton.setVisible(true);
             }
         }
         else {
             System.out.println("Can call");
-            var foldButton = new Button(); var callButton = new Button();
 
-            configureButton(foldButton, "Fold", CONTROL_WIDTH - 20, CONTROL_HEIGHT/6, 10, CONTROL_HEIGHT/3, CONTROL_BUTTON);
+            var foldButton = (Button) playerAction.getChildren().get(FOLD_BUTTON);
             foldButton.setOnMouseClicked(mouseEvent -> {
                 applyFold(player, round);
             });
-            playerAction.getChildren().add(foldButton);
+            foldButton.setVisible(true);
 
-            configureButton(callButton, "Call", CONTROL_WIDTH - 20, CONTROL_HEIGHT/6, 10, CONTROL_HEIGHT/2, CONTROL_BUTTON);
+            var callButton = playerAction.getChildren().get(CALL_BUTTON);
             callButton.setOnMouseClicked(mouseEvent -> {
                 applyCall(player, round);
             });
-            playerAction.getChildren().add(callButton);
+            callButton.setVisible(true);
 
             if(!board.foldOrCall(player, round)) {
                 System.out.println("...and raise");
-                var raiseSize = new TextField();
-                var raiseButton = new Button();
-
-                configureTextField(raiseSize, board.getBigBlind() + "",
-                        CONTROL_WIDTH - 20, CONTROL_HEIGHT/6, 10, 2*CONTROL_HEIGHT/3, "");
-                playerAction.getChildren().add(raiseSize);
-
-                configureButton(raiseButton, "Raise", CONTROL_WIDTH - 20, CONTROL_COMPONENT_HEIGHT,
-                        10, 5 * CONTROL_COMPONENT_HEIGHT, CONTROL_BUTTON);
+                var raiseSize = (TextField) playerAction.getChildren().get(RAISE_SIZE);
+                var raiseButton = (Button) playerAction.getChildren().get(RAISE_BUTTON);
                 raiseButton.setOnMouseClicked(mouseEvent -> {
                     applyBet(player, round, Integer.parseInt(raiseSize.getText()));
-                    playerAction.getChildren().clear();
                 });
-                playerAction.getChildren().add(raiseButton);
+                raiseSize.setVisible(true);
+                raiseButton.setVisible(true);
             }
         }
     }
-
 
     private int adjustBetSize(Player player, int round, int b) {
         if (board.lessThanBigBlindAbove(player, round))
@@ -433,6 +465,10 @@ public class RunController implements Initializable {
         return b;
     }
 
+    private void hideChildren(Pane pane) {
+        for(Node node : pane.getChildren()) node.setVisible(false);
+    }
+
     private void applyBet(Player player, int round, int bet) {
         adjustBetSize(player, round, bet);
         System.out.println("Bet size: " + bet);
@@ -440,7 +476,7 @@ public class RunController implements Initializable {
         player.addBets(round, bet);
         board.setMaxBet(bet);
         board.resetAfterRaise();
-        playerAction.getChildren().clear();
+        hideChildren(playerAction);
     }
 
     private void applyCall(Player player, int round) {
@@ -454,19 +490,19 @@ public class RunController implements Initializable {
             player.setBets(round, board.getMaxBet());
         }
         board.plusAfterRaise();
-        playerAction.getChildren().clear();
+        hideChildren(playerAction);
     }
 
     private void applyFold(Player player, int round) {
         player.setPlaying(false);
         board.plusFolds();
         board.plusAfterRaise();
-        playerAction.getChildren().clear();
+        hideChildren(playerAction);
     }
 
     private void applyCheck(Player player, int round) {
         board.plusAfterRaise();
-        playerAction.getChildren().clear();
+        hideChildren(playerAction);
     }
 
     private void distributeFolds() {
