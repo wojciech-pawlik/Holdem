@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Getter
@@ -83,6 +84,20 @@ public class Board {
     public void plusFolds() { folds++; }
 
     public void plusStacksNormal() { stacksNormal++; }
+
+    public Card[] getCards(int round) {
+        switch(round) {
+            case 0:
+                return null;
+            case 1:
+                return new Card[]{flop1,flop2,flop3};
+            case 2:
+                return new Card[]{flop1,flop2,flop3,turn};
+            case 3:
+                return new Card[]{flop1,flop2,flop3,turn,river};
+        }
+        return null;
+    }
 
     // == stacks ante without duplicates == //
     public int countStacksAnte() {
@@ -766,12 +781,11 @@ public class Board {
 
     // <=== CALCULATION METHODS ===> //
 
-    public void calculate(int part) {
+    public float[] calculate(int part) {
 //        System.out.println("calculate()");
         var wins = new float[players.size()];
         var chances = new float[players.size()];
         int sum = 0;
-        for(float k : wins) k = 0;
         System.out.println(Arrays.toString(wins));
 
         if(part == PREFLOP) {
@@ -795,27 +809,26 @@ public class Board {
             } catch(ArithmeticException e) {
                 System.out.println(e.getMessage());
             }
-
         }
 
         System.out.println(Arrays.toString(chances));
+        return chances;
     }
 
     private void calcFlop(float[] wins) {
         int count = DRAW_COUNT;
+        List<Card> remainingCards = deck.getCards().stream().filter(card -> !card.isUsed()).collect(Collectors.toList());
+        var result = new Card[5];
         do {
-            try {
-                var result = drawFive();
-                setFlop1(deck.getCards().get(result[0]));
-                setFlop2(deck.getCards().get(result[1]));
-                setFlop3(deck.getCards().get(result[2]));
-                setTurn(deck.getCards().get(result[3]));
-                setRiver(deck.getCards().get(result[4]));
-                checkHands(wins);
-                count--;
-            } catch(NullPointerException e) {
-                e.getMessage();
-            }
+            result = random.ints(5, 0, remainingCards.size())
+                    .mapToObj(i -> (Card) remainingCards.get(i)).toArray(Card[]::new);
+            flop1 = result[0];
+            flop2 = result[1];
+            flop3 = result[2];
+            turn = result[3];
+            river = result[4];
+            checkHands(wins);
+            count--;
         } while(count > 0);
     }
 
@@ -823,28 +836,28 @@ public class Board {
         var result = new int[5];
         for(int card = 0; card < 5; card++)
             result[card] = random.nextInt(52);
-
         return result;
     }
 
     private void calcTurn(float[] wins) {
-        for(int t = 0; t < deck.getCards().size(); t++)
-            if(!deck.getCards().get(t).isUsed()) {
-                turn = deck.drawCard(t);
-                calcRiver(wins);
-
-                deck.getCards().get(t).setUsed(false);
+        List<Card> remainingCards = deck.getCards().stream().filter(card -> !card.isUsed()).collect(Collectors.toList());
+        for(int t = 0; t < remainingCards.size() - 1; t++) {
+            turn = remainingCards.get(t);
+            for(int r = t + 1; r < remainingCards.size(); r++) {
+                river = remainingCards.get(r);
+                checkHands(wins);
             }
+        }
+        turn = river = null;
     }
 
     private void calcRiver(float[] wins) {
-        for(int r = 0; r < deck.getCards().size(); r++)
-            if(!deck.getCards().get(r).isUsed()) {
-                river = deck.drawCard(r);
-                checkHands(wins);
-
-                deck.getCards().get(r).setUsed(false);
-            }
+        List<Card> remainingCards = deck.getCards().stream().filter(card -> !card.isUsed()).collect(Collectors.toList());
+        for(Card card : remainingCards) {
+            river = card;
+            checkHands(wins);
+        }
+        river = null;
     }
 
     public void checkHands(float[] wins) {
@@ -866,7 +879,6 @@ public class Board {
                 } catch(ArithmeticException e) {
                     System.out.println("You fool!");
                 }
-
             }
     }
 }

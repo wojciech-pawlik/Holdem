@@ -108,6 +108,20 @@
             <version>RELEASE</version>
             <scope>compile</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>4.1</version>
+        </dependency>
+
+        <!-- GUAVA -->
+        <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>27.0.1-jre</version>
+        </dependency>
     </dependencies>
 
     <build>

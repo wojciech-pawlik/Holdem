@@ -20,7 +20,7 @@ public class Deck {
     }
 
     public void shuffle() {
-        for(int i = 0; i < 52; i++) cards.get(i).setUsed(false);
+        for(Card card : cards) card.setUsed(false);
     }
 
     public Card drawCard(Random random) {
@@ -36,15 +36,14 @@ public class Deck {
     }
 
     public Card drawCard(int number) {
-        if(!cards.get(number).isUsed())
+        if(!cards.get(number).isUsed()) {
             cards.get(number).setUsed(true);
-        return cards.get(number);
+            return cards.get(number);
+        }
+        return null;
     }
 
     int usedCount() {
-        int count = 0;
-        for(Card card : cards)
-            if(card.isUsed()) count++;
-        return count;
+        return (int)cards.stream().filter(Card::isUsed).count();
     }
 }

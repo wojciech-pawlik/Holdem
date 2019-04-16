@@ -1,17 +1,13 @@
 package sample;
 
-import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import poker.Board;
@@ -383,7 +379,6 @@ public class RunController implements Initializable {
         task.setOnSucceeded((WorkerStateEvent event) -> {
             System.out.println("OK!");
         });
-
     }
 
     private void setPlayerAction(Player player, int round) {

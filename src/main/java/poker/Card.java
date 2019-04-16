@@ -3,6 +3,8 @@ package poker;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Objects;
+
 @Getter
 @Setter
 public class Card {
@@ -93,6 +95,16 @@ public class Card {
     @Override
     public String toString() {
         return nameLong;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return this.hashCode() == o.hashCode();
+    }
+
+    @Override
+    public int hashCode() {
+        return (value - 1) + suit*13;
     }
 }
 

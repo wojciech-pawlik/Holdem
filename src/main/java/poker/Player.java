@@ -27,9 +27,6 @@ public class Player {
     @Column(name = "notes")
     private String notes;
 
-//    @Column(name = "check")
-//    private int check;
-
     @Transient
     private Card card1, card2;
     @Transient

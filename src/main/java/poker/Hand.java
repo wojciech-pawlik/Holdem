@@ -2,48 +2,44 @@ package poker;
 
 import lombok.Getter;
 import lombok.Setter;
-import poker.comprators.CardComparator;
 import poker.comprators.CardComparatorAceAsOne;
-import poker.comprators.CardComparatorColor;
-import poker.comprators.CardComparatorColorAceAsOne;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Getter
 @Setter
 public class Hand {
     private int points;
-    private String name, nameShort;
-    private int maxSuit;				//Max count of cards with the same suit -> Royal Flush, Straight Flush, Flush
-    private int suit;				//Suit of maxSuit cards -> Royal Flush, Straight Flush, Flush
-    private int maxValue1;				//Max count of cards with the same value -> Quads, Trips, Full House, Two Pair, One Pair
-    private int value1;				//Value of cards with value of maxValue1 -> Quads, Trips, Full House, Two Pair, One Pair
-    private int maxValue2;			//Second max count of cards with the same value -> Full House, Two Pair
-    private int value2;				//Value of cards with value of maxValue2 -> Full House, Two Pair
-    private ArrayList<Card> bestHand;	//best 5-card hand
-    private ArrayList<Card> allCards;	//all cards which can build a hand
+    private String name, shortName;
+    private int maxCountOfSuitedCards;				// Max count of cards with the same mostFrequentSuit -> Royal Flush, Straight Flush, Flush
+    private int mostFrequentSuit;				    // Suit of maxCountOfSuitedCards cards -> Royal Flush, Straight Flush, Flush
+    private int maxCountOfValues;				    // Max count of cards with the same value -> Quads, Trips, Full House, Two Pair, One Pair
+    private int mostFrequentValue;				    // Value of cards with value of maxCountOfValues -> Quads, Trips, Full House, Two Pair, One Pair
+    private int secondMaxCountOfValues;			// Second max count of cards with the same value -> Full House, Two Pair
+    private int secondMostFrequentValue;			// Value of cards with value of secondMaxCountOfValues -> Full House, Two Pair
+    private ArrayList<Card> bestHand;	            // Best 5-card hand
+    private ArrayList<Card> allCards;	            // All cards which can build a hand
 
     public Hand() {
-//        System.out.println("Hand()");
         points = 0;
         name = "";
-        nameShort = "";
-        maxSuit = 0;
-        suit = 0;
-        maxValue1 = 0;
-        value1 = 0;
-        maxValue2 = 0;
-        value2 = 0;
+        shortName = "";
+        maxCountOfSuitedCards = 0;
+        mostFrequentSuit = 0;
+        maxCountOfValues = 0;
+        mostFrequentValue = 0;
+        secondMaxCountOfValues = 0;
+        secondMostFrequentValue = 0;
         bestHand = new ArrayList<>(5);
         allCards = new ArrayList<>(7);
     }
 
-    @SuppressWarnings("unused")
     public Hand(Player player, Board board) {
         this();
-//        System.out.println("Player: " + player.getNickname());
         try {
             allCards.add(player.getCard1());
             allCards.add(player.getCard2());
@@ -55,12 +51,9 @@ public class Hand {
         } catch(NullPointerException e) {
             System.out.println(e.getMessage());
         }
-//        System.out.println(allCards);
-
 
         howManySuited();
-        maxValuePower1();
-        maxValuePower2();
+        maxValuePowers();
 
         checkHand();
     }
@@ -70,368 +63,266 @@ public class Hand {
     // ONLY FOR TESTS //
     public void suitsAndValues() {
         howManySuited();
-        maxValuePower1();
-        maxValuePower2();
+        maxValuePowers();
     }
 
-
-    private void howManySuited() {
-//        System.out.println("howManySuited()");
-        for(int i = 0; i < 4; i++) {
-            int count = 0;
-            for(int j = 0; j < allCards.size(); j++)
-                if(allCards.get(j).getSuit() == i) count++;
-            if(count > maxSuit) {
-                maxSuit = count;
-                suit = i;
-            }
-        }
-//        System.out.println("maxSuit: " + maxSuit);
-    }
-
+    // Checks Royal Flush
     private int suitValue() {
-        if(maxSuit < 5)
+        if(maxCountOfSuitedCards < 5)
             return 0;
-        int value = 0;
-        Collections.sort(allCards, new CardComparatorColor());
-        int index = 0;
-        while(allCards.get(index).getSuit() != suit)
-            index++;
-        for(int i = 0; i < 5; i++)
-            value += allCards.get(index + maxSuit-1 - i).getValue();
-        return value;
+        return allCards.stream()
+                .filter(card -> (card.getSuit() == mostFrequentSuit))
+                .sorted(Comparator.comparingInt(Card::getValue).reversed())
+                .limit(5)
+                .mapToInt(Card::getValue)
+                .sum();
     }
 
-    @SuppressWarnings({"unused", "Duplicates"})
+    // Checks what is the most frequent suit and is't frequency
+    private void howManySuited() {
+        Map<Integer, Long> countOfSuits = allCards.stream()
+                .collect(Collectors.groupingBy(Card::getSuit, Collectors.counting()));
+        maxCountOfSuitedCards = Collections.max(countOfSuits.values()).intValue();
+        mostFrequentSuit = countOfSuits.entrySet().stream()
+                .filter(value -> (value.getValue().intValue() == maxCountOfSuitedCards)).findFirst().get().getKey();
+    }
+
+    // Checks Straight Flush
     private boolean isStraightFlush() {
-        if(maxSuit < 5) return false;
-        Collections.sort(allCards, new CardComparatorColorAceAsOne());
-        int index = 0;
-        while(allCards.get(index).getSuit() != suit)
-            index++;
-        for(int i = 0; i < maxSuit-4; i++) {
-            if((allCards.get(index + i).getValue() % 13) - (allCards.get(index + 4 + i).getValue() % 13) == 4)
-                return true;
-        }
+        if(maxCountOfSuitedCards < 5) return false;
+        List<Card> cardsOfMostFrequentSuit = allCards.stream()
+                .filter(card -> (card.getSuit() == mostFrequentSuit))
+                .sorted(new CardComparatorAceAsOne())
+                .collect(Collectors.toList());
+        if(cardsOfMostFrequentSuit.size() == 5)
+            return cardsOfMostFrequentSuit.get(0).getValue() - (cardsOfMostFrequentSuit.get(4).getValue() % 13) == 4;
+        if(cardsOfMostFrequentSuit.size() == 6)
+            return cardsOfMostFrequentSuit.get(0).getValue() - cardsOfMostFrequentSuit.get(4).getValue() == 4 ||
+                    cardsOfMostFrequentSuit.get(1).getValue() - (cardsOfMostFrequentSuit.get(5).getValue() % 13) == 4;
+        if(cardsOfMostFrequentSuit.size() == 7)
+            return cardsOfMostFrequentSuit.get(0).getValue() - cardsOfMostFrequentSuit.get(4).getValue() == 4 ||
+                    cardsOfMostFrequentSuit.get(1).getValue() - cardsOfMostFrequentSuit.get(5).getValue() == 4 ||
+                    cardsOfMostFrequentSuit.get(2).getValue() - (cardsOfMostFrequentSuit.get(6).getValue() % 13) == 4;
         return false;
     }
 
-    private void maxValuePower1() {
-        int max = 0;
-        int nr = 0;
-        for(int i = 1; i <= 13; i++) {
-            int count = 0;
-            for(int j = 0; j < allCards.size(); j++)
-                if(allCards.get(j).getValue() == i) count++;
-            if(count >= max) {
-                max = count;
-                nr = i;
+    // Checks two the most frequent values and their frequency
+    private void maxValuePowers() {
+        maxCountOfValues = secondMaxCountOfValues = mostFrequentValue = secondMostFrequentValue = 0;
+        Map<Integer, Long> countOfValues = allCards.stream()
+                .sorted(Comparator.comparingInt(Card::getValue).reversed().thenComparing(Card::getSuit))
+                .collect(Collectors.groupingBy(Card::getValue, Collectors.counting()));
+        for(Integer key : countOfValues.keySet()) {
+            if(countOfValues.get(key) >= maxCountOfValues) {
+                secondMaxCountOfValues = maxCountOfValues;
+                secondMostFrequentValue = mostFrequentValue;
+                maxCountOfValues = countOfValues.get(key).intValue();
+                mostFrequentValue = key;
+            }
+            else if(countOfValues.get(key) >= secondMaxCountOfValues) {
+                secondMaxCountOfValues = countOfValues.get(key).intValue();
+                secondMostFrequentValue = key;
             }
         }
-        maxValue1 = max;
-        value1 = nr;
     }
 
-    private void maxValuePower2() {
-        int max = 0;
-        int nr = 0;
-        for(int i = 1; i <= 13; i++)
-            if(i != value1) {
-                int count = 0;
-                for(int j = 0; j < allCards.size(); j++)
-                    if(allCards.get(j).getValue() == i) count++;
-                if(count >= max) {
-                    max = count;
-                    nr = i;
-                }
-            }
-        maxValue2 = max;
-        value2 = nr;
+    // Checks if there is an Ace-high Straight
+    private boolean isStraightAceHigh() {
+        List<Integer> allCardsDistinctValues = allCards.stream()
+                .map(Card::getValue)
+                .distinct()
+                .sorted(Comparator.reverseOrder())
+                .collect(Collectors.toList());
+        if(allCardsDistinctValues.size() >= 5)
+            return allCardsDistinctValues.get(0) == 13 && allCardsDistinctValues.get(4) == 9;
+        return false;
     }
+
+    // Checks Straight (if there is no Ace-high Straight - but without 'if' statement checking Ace-high straight
+    //      because I use this method in another 'else if' block)
+    private boolean isStraight() {
+        List<Integer> allCardsDistinctValuesAceAsOne = allCards.stream()
+                .map(card -> (card.getValue() % 13))
+                .distinct()
+                .sorted(Comparator.reverseOrder())
+                .collect(Collectors.toList());
+        if(allCardsDistinctValuesAceAsOne.size() == 7)
+            return allCardsDistinctValuesAceAsOne.get(0) - allCardsDistinctValuesAceAsOne.get(4) == 4 ||
+                allCardsDistinctValuesAceAsOne.get(1) - allCardsDistinctValuesAceAsOne.get(5) == 4 ||
+                allCardsDistinctValuesAceAsOne.get(2) - allCardsDistinctValuesAceAsOne.get(6) == 4;
+        if(allCardsDistinctValuesAceAsOne.size() == 6)
+            return allCardsDistinctValuesAceAsOne.get(0) - allCardsDistinctValuesAceAsOne.get(4) == 4 ||
+                    allCardsDistinctValuesAceAsOne.get(1) - allCardsDistinctValuesAceAsOne.get(5) == 4;
+        if(allCardsDistinctValuesAceAsOne.size() == 5)
+            return allCardsDistinctValuesAceAsOne.get(0) - allCardsDistinctValuesAceAsOne.get(4) == 4;
+        return false;
+    }
+
+    /* ==== MAIN FUNCTION WHICH CHECKS THE HAND ==== */
 
     @SuppressWarnings("Duplicates")
-    private boolean isStraight() {
-        Collections.sort(allCards, new CardComparatorAceAsOne());
-        int[] values = {allCards.get(0).getValue() % 13,20,20,20,20,20,20};
-        int index = 1;
-        for(int i = 1; i < allCards.size(); i++) {
-            Card card = allCards.get(i);
-            if(card.getValue() != values[index-1])
-                values[index++] = card.getValue() % 13;
-        }
-        return (values[6] - values[2] == 4) && (values[5] - values[3] == 2)
-                || (values[5] - values[1]) == 4 && (values[4] - values[2] == 2)
-                || (values[4] - values[0]) == 4 && (values[3] - values[1] == 2);
-    }
-
-    private boolean isStraightAceHigh() {
-        Collections.sort(allCards, new CardComparator());
-        int max[] = {0,0,0,0,0};
-        int maxIndex = 4;
-        for (int i = 0; i < allCards.size(); i++) {
-            Card card = allCards.get(i);
-            if (maxIndex >= 0) {
-                if(i == 0)
-                    max[maxIndex--] = card.getValue();
-                else if(card.getValue() != allCards.get(i-1).getValue())
-                    max[maxIndex--] = card.getValue();
-            }
-        }
-        return max[0] == 9 && max[4] == 13;
-    }
-
-
-    /* ==== MAIN FUNCTION WHICH CHECK HAND ==== */
-
-    @SuppressWarnings({"Duplicates", "unused"})
     public int checkHand() {
-        //ROYAL FLUSH////////////
+        //ROYAL FLUSH//
         if(suitValue() == 55) {
             points = 1200000;
-            name = nameShort = "Royal flush";
-            for(int i = 0; i < allCards.size(); i++) {
-                if(allCards.get(i).getValue() == 13 && allCards.get(i).getSuit() == suit) bestHand.add(allCards.get(i));
-                if(allCards.get(i).getValue() == 12 && allCards.get(i).getSuit() == suit) bestHand.add(allCards.get(i));
-                if(allCards.get(i).getValue() == 11 && allCards.get(i).getSuit() == suit) bestHand.add(allCards.get(i));
-                if(allCards.get(i).getValue() == 10 && allCards.get(i).getSuit() == suit) bestHand.add(allCards.get(i));
-                if(allCards.get(i).getValue() == 9 && allCards.get(i).getSuit() == suit) bestHand.add(allCards.get(i));
-            }
+            name = shortName = "Royal flush";
+            bestHand.addAll(allCards.stream()
+                    .filter(card -> (card.getSuit() == mostFrequentSuit))
+                    .sorted(Comparator.comparingInt(Card::getValue).reversed())
+                    .limit(5)
+                    .collect(Collectors.toList()));
         }
 
-        //STRAIGHT FLUSH/////////
+        //STRAIGHT FLUSH//
         else if(isStraightFlush()) {
             name = "Straight flush";
-            Collections.sort(allCards, new CardComparatorColorAceAsOne());
-            int index = 0;
-            while(allCards.get(index).getSuit() != suit) {
-                index++;
+            ArrayList<Card> cardsOfMostFrequentSuit = (ArrayList<Card>)allCards.stream()
+                    .filter(card -> (card.getSuit() == mostFrequentSuit))
+                    .sorted(new CardComparatorAceAsOne())
+                    .collect(Collectors.toList());
+            if(cardsOfMostFrequentSuit.size() == 7) {
+                if(cardsOfMostFrequentSuit.get(0).getValue() - cardsOfMostFrequentSuit.get(4).getValue() == 4)
+                    bestHand.addAll(cardsOfMostFrequentSuit.subList(0, 5));
+                else if(cardsOfMostFrequentSuit.get(1).getValue() - cardsOfMostFrequentSuit.get(5).getValue() == 4)
+                    bestHand.addAll(cardsOfMostFrequentSuit.subList(1, 6));
+                else bestHand.addAll(cardsOfMostFrequentSuit.subList(2, 7));
             }
-            if(allCards.get(index).getValue() - allCards.get(index + 1).getValue() == 1
-                    && allCards.get(index+1).getValue() - allCards.get(index + 2).getValue() == 1)
-                for (int i = 0; i < 5; i++) bestHand.add(allCards.get(index + i));
-            else if(allCards.get(index+1).getValue() - allCards.get(index + 2).getValue() == 1)
-                for (int i = 0; i < 5; i++) bestHand.add(allCards.get(index + 1 + i));
-            else for (int i = 0; i < 5; i++) bestHand.add(allCards.get(index + 2 + i));
+            else if(cardsOfMostFrequentSuit.size() == 6) {
+                if(cardsOfMostFrequentSuit.get(0).getValue() - cardsOfMostFrequentSuit.get(4).getValue() == 4)
+                    bestHand.addAll(cardsOfMostFrequentSuit.subList(0, 5));
+                else bestHand.addAll(cardsOfMostFrequentSuit.subList(1, 6));
+            }
+            else bestHand = cardsOfMostFrequentSuit;
 
-            name += " - " + bestHand.get(0).getValueNameLong() + " high";
-            nameShort = name;
+            name = new StringBuilder(name).append(" - ").append(bestHand.get(0).getValueNameLong()).append(" high").toString();
+            shortName = name;
             points = 1180000 + bestHand.get(0).getValue();
         }
 
-        //FOUR OF A KIND///////////////////////
-        else if(maxValue1 == 4) {
-            nameShort = "Four of a kind";
-            int key = 0;
-            for(int i = 0; i < allCards.size(); i++) {
-                if(allCards.get(i).getValue() == value1) {
-                    bestHand.add(key, allCards.get(i));
-                    key++;
-                }
-            }
-            int max = 0; //Kicker
-            int index = 0;
-            for(int j = 0; j < allCards.size(); j++)
-                if(allCards.get(j).getValue() != value1)
-                    if(allCards.get(j).getValue() > max) {
-                        max = allCards.get(j).getValue();
-                        index = j;
-                    }
-            bestHand.add(4, allCards.get(index));
+        //FOUR OF A KIND//
+        else if(maxCountOfValues == 4) {
+            shortName = "Four of a kind";
+            allCards.sort(Comparator.comparingInt(Card::getValue).reversed().thenComparing(Card::getSuit));
+            bestHand.addAll(allCards.stream().filter(card -> (card.getValue() == mostFrequentValue)).collect(Collectors.toList()));
+            bestHand.addAll(allCards.stream().filter(card -> (card.getValue() != mostFrequentValue)).limit(2).collect(Collectors.toList()));
             points = 1150000 + 14* bestHand.get(0).getValue() + bestHand.get(4).getValue();
-            nameShort += ", " + bestHand.get(0).getValueNameLong() + "s";
-            name = nameShort + " with " + bestHand.get(4).getValueNameLong() + " kicker";
+            shortName = new StringBuilder(shortName).append(", ").append(bestHand.get(0).getValueNameLong()).append("s").toString();
+            name = new StringBuilder(shortName).append(" with ").append(bestHand.get(4).getValueNameLong()).append(" kicker").toString();
         }
 
-        //FULL HOUSE//////////////////////////////////
-        else if(maxValue1 == 3 && maxValue2 >= 2) {
-            nameShort = "Full house";
-            int key = 0;
-            for(int i = 0; i < allCards.size(); i++) {
-                if(allCards.get(i).getValue() == value1) {
-                    bestHand.add(key, allCards.get(i));
-                    key++;
-                }
-            }
-            int k = 0;
-            while(key < 5) {
-                if(allCards.get(k).getValue() == value2) {
-                    bestHand.add(key, allCards.get(k));
-                    key++;
-                }
-                k++;
-            }
-            nameShort += ", " + bestHand.get(0).getValueNameLong() + "s full of "
-                    + bestHand.get(3).getValueNameLong() + "s";
-            name = nameShort;
+        //FULL HOUSE//
+        else if(maxCountOfValues == 3 && secondMaxCountOfValues >= 2) {
+            shortName = "Full house";
+            allCards.sort(Comparator.comparingInt(Card::getValue).reversed().thenComparing(Card::getSuit));
+            bestHand.addAll(allCards.stream().filter(card -> (card.getValue() == mostFrequentValue)).collect(Collectors.toList()));
+            bestHand.addAll(allCards.stream().filter(card -> (card.getValue() == secondMostFrequentValue)).collect(Collectors.toList()));
+            shortName = new StringBuilder(shortName).append(", ").append(bestHand.get(0).getValueNameLong()).append("s full of ").append(bestHand.get(3).getValueNameLong()).append("s").toString();
+            name = shortName;
             points = 1140000 + 14* bestHand.get(0).getValue() + bestHand.get(3).getValue();
         }
 
-        //FLUSH///////////////////////////////////////////
-        else if(maxSuit >= 5) {
-            nameShort = "Flush";
-            Collections.sort(allCards, new CardComparatorColor());
-            int index = 0;
-            while(allCards.get(index).getSuit() != suit)
-                index++;
-            for(int i = 0; i < 5; i++)
-                bestHand.add(allCards.get(index + maxSuit-1 - i));
+        //FLUSH//
+        else if(maxCountOfSuitedCards >= 5) {
+            shortName = "Flush";
+            bestHand.addAll(allCards.stream()
+                    .filter(card -> (card.getSuit() == mostFrequentSuit))
+                    .sorted(Comparator.comparingInt(Card::getValue).reversed())
+                    .limit(5)
+                    .collect(Collectors.toList()));
 
-            nameShort += ", " + bestHand.get(0).getValueNameLong() + " high";
-            name = nameShort;
+            shortName = new StringBuilder(shortName).append(", ").append(bestHand.get(0).getValueNameLong()).append(" high").toString();
+            name = shortName;
             points = 600000 + 38416* bestHand.get(0).getValue() + 2744* bestHand.get(1).getValue() + 196* bestHand.get(2).getValue()
                     + 14* bestHand.get(3).getValue() + bestHand.get(4).getValue();
         }
 
-        //STRAIGHT/////////////////////////////////////////
+        //STRAIGHT//
         else if(isStraightAceHigh()) {
-            nameShort = "Straight";
+            shortName = "Straight";
             name = "Straight, Ace high";
             points = 600000;
-            bestHand.add(allCards.get(0));
-            int card = 1;
-            while(card < allCards.size() && bestHand.size() < 5) {
-                if(allCards.get(card).getValue() != allCards.get(card-1).getValue())
-                    bestHand.add(allCards.get(card));
-                card++;
-            }
+            bestHand.addAll(allCards.stream().filter(distinctByKey(Card::getValue)).limit(5).collect(Collectors.toList()));
         }
 
         else if(isStraight()) {
-            nameShort = "Straight";
-            bestHand.add(allCards.get(allCards.size()-1));
-            int index = 1;
-            while(bestHand.size() < 5) {
-                if(allCards.get(allCards.size()-1 - index).getValue() == bestHand.get(bestHand.size()-1 - index+1).getValue())
-                    index++;
-                else {
-                    if(bestHand.get(bestHand.size()-1).getValue() - allCards.get(allCards.size()-1 - index).getValue() > 1)
-                        bestHand.clear();
-                    bestHand.add(allCards.get(allCards.size()-1-index++));
-                }
-            }
+            shortName = "Straight";
+            List<Card> allCardsDistinctValuesAceAsOne = allCards.stream()
+                    .filter(distinctByKey(Card::getValue))
+                    .distinct()
+                    .sorted(new CardComparatorAceAsOne())
+                    .collect(Collectors.toList());
+            if(allCardsDistinctValuesAceAsOne.size() == 7)
+                if(allCardsDistinctValuesAceAsOne.get(0).getValue() - allCardsDistinctValuesAceAsOne.get(4).getValue() == 4)
+                    bestHand.addAll(allCardsDistinctValuesAceAsOne.subList(0,5));
+                else if(allCardsDistinctValuesAceAsOne.get(1).getValue() - allCardsDistinctValuesAceAsOne.get(5).getValue() == 4)
+                    bestHand.addAll(allCardsDistinctValuesAceAsOne.subList(1,6));
+                else bestHand.addAll(allCardsDistinctValuesAceAsOne.subList(2,7));
+            if(allCardsDistinctValuesAceAsOne.size() == 6)
+                if(allCardsDistinctValuesAceAsOne.get(0).getValue() - allCardsDistinctValuesAceAsOne.get(4).getValue() == 4)
+                    bestHand.addAll(allCardsDistinctValuesAceAsOne.subList(0,5));
+                else bestHand.addAll(allCardsDistinctValuesAceAsOne.subList(1,6));
+            if(allCardsDistinctValuesAceAsOne.size() == 5)
+                bestHand.addAll(allCardsDistinctValuesAceAsOne.subList(0,5));
 
-            nameShort += ", " + bestHand.get(0).getValueNameLong() + " high";
-            name = nameShort;
+            shortName = new StringBuilder(shortName).append(", ").append(bestHand.get(0).getValueNameLong()).append(" high").toString();
+            name = shortName;
             points = 590000 + bestHand.get(0).getValue();
         }
 
-        //THREE OF A KIND///////////////////////////
-        else if(maxValue1 == 3) {
-            nameShort = "Three of a kind";
-            int key = 0;
-            for(int i = 0; i < allCards.size(); i++)
-                if(allCards.get(i).getValue() == value1) {
-                    bestHand.add(key, allCards.get(i));
-                    key++;
-                }
-            int i1 = 0;
-            int i2 = 0;
-            int[] max = {0,-1};
-            for(int j = 0; j < allCards.size(); j++)
-                if(allCards.get(j).getValue() != value1) {
-                    if(allCards.get(j).getValue() > max[0]) {
-                        max[1] = max[0];
-                        max[0] = allCards.get(j).getValue();
-                        i2 = i1;
-                        i1 = j;
-                    }
-                    else if(allCards.get(j).getValue() > max[1]) {
-                        max[1] = allCards.get(j).getValue();
-                        i2 = j;
-                    }
-                }
-            bestHand.add(3, allCards.get(i1));
-            bestHand.add(4, allCards.get(i2));
+        //THREE OF A KIND//
+        else if(maxCountOfValues == 3) {
+            shortName = "Three of a kind";
+            allCards.sort(Comparator.comparingInt(Card::getValue).reversed().thenComparing(Card::getSuit));
+            bestHand.addAll(allCards.stream().filter(card -> (card.getValue() == mostFrequentValue)).collect(Collectors.toList()));
+            bestHand.addAll(allCards.stream().filter(card -> (card.getValue() != mostFrequentValue)).limit(2).collect(Collectors.toList()));
 
-            nameShort += ", " + bestHand.get(0).getValueNameLong() + "s";
-            name = nameShort + " with " + bestHand.get(3).getValueNameLong() + "-" + bestHand.get(4).getValueNameLong() + " kicker";
+            shortName = new StringBuilder(shortName).append(", ").append(bestHand.get(0).getValueNameLong()).append("s").toString();
+            name = new StringBuilder(shortName).append(" with ").append(bestHand.get(3).getValueNameLong())
+                    .append("-").append(bestHand.get(4).getValueNameLong()).append(" kicker").toString();
             points = 583000 + 196* bestHand.get(1).getValue() + 14* bestHand.get(3).getValue() + bestHand.get(4).getValue();
         }
 
-        //TWO PAIR///////////////////////////////////
-        else if(maxValue2 == 2) {
-            nameShort = "Two pair";
-            int key = 0;
-            for(int i = 0; i < allCards.size(); i++) {
-                if(allCards.get(i).getValue() == value1) {
-                    bestHand.add(key, allCards.get(i));
-                    key++;
-                }
-            }
-            for(int j = 0; j < allCards.size(); j++) {
-                if(allCards.get(j).getValue() == value2) {
-                    bestHand.add(key, allCards.get(j));
-                    key++;
-                }
-            }
-            int max = 0;
-            int f = 0;
-            for(int k = 0; k < allCards.size(); k++)
-                if(allCards.get(k).getValue() != value1 && allCards.get(k).getValue() != value2)
-                    if(allCards.get(k).getValue() > max) {
-                        max = allCards.get(k).getValue();
-                        f = k;
-                    }
-            bestHand.add(4, allCards.get(f));
+        //TWO PAIR//
+        else if(secondMaxCountOfValues == 2) {
+            shortName = "Two pair";
+            allCards.sort(Comparator.comparingInt(Card::getValue).reversed().thenComparing(Card::getSuit));
+            bestHand.addAll(allCards.stream().filter(card -> (card.getValue() == mostFrequentValue)).collect(Collectors.toList()));
+            bestHand.addAll(allCards.stream().filter(card -> (card.getValue() == secondMostFrequentValue)).collect(Collectors.toList()));
+            bestHand.addAll(allCards.stream()
+                    .filter(card -> (card.getValue() != mostFrequentValue && card.getValue() != secondMostFrequentValue)).limit(1)
+                    .collect(Collectors.toList()));
 
-            nameShort += ", " + bestHand.get(0).getValueNameLong() + "s and " + bestHand.get(2).getValueNameLong() + "s";
-            name = nameShort + " with " + bestHand.get(4).getValueNameLong() + " kicker";
+            shortName = new StringBuilder(shortName).append(", ").append(bestHand.get(0).getValueNameLong())
+                    .append("s and ").append(bestHand.get(2).getValueNameLong()).append("s").toString();
+            name = new StringBuilder(shortName).append(" with ").append(bestHand.get(4).getValueNameLong()).append(" kicker").toString();
             points = 580000 + 196* bestHand.get(0).getValue() + 14* bestHand.get(2).getValue() + bestHand.get(4).getValue();
         }
 
-        //ONE PAIR////////////////////////////////////
-        else if(maxValue1 == 2) {
-            nameShort = "One pair";
-            for (Card card : allCards)
-                if (card.getValue() == value1) {
-                    bestHand.add(card);
-                }
-            int[] max = {0,-1,-2};
-            int i1, i2, i3;
-            i1 = i2 = i3 = 0;
-            for(int j = 0; j < allCards.size(); j++)
-                if(allCards.get(j).getValue() != value1) {
-                    if(allCards.get(j).getValue() > max[0]) {
-                        max[2] = max[1];
-                        max[1] = max[0];
-                        max[0] = allCards.get(j).getValue();
-                        i3 = i2;
-                        i2 = i1;
-                        i1 = j;
-                    }
-                    else if(allCards.get(j).getValue() > max[1]) {
-                        max[2] = max[1];
-                        max[1] = allCards.get(j).getValue();
-                        i3 = i2;
-                        i2 = j;
-                    }
-                    else if(allCards.get(j).getValue() > max[2]) {
-                        max[2] = allCards.get(j).getValue();
-                        i3 = j;
-                    }
-                }
-            bestHand.add(2, allCards.get(i1));
-            bestHand.add(3, allCards.get(i2));
-            bestHand.add(4, allCards.get(i3));
+        //ONE PAIR//
+        else if(maxCountOfValues == 2) {
+            shortName = "One pair";
+            allCards.sort(Comparator.comparingInt(Card::getValue).reversed().thenComparing(Card::getSuit));
+            bestHand.addAll(allCards.stream().filter(card -> (card.getValue() == mostFrequentValue)).collect(Collectors.toList()));
+            bestHand.addAll(allCards.stream().filter(card -> (card.getValue() != mostFrequentValue)).limit(3).collect(Collectors.toList()));
 
-            nameShort += ", " + bestHand.get(0).getValueNameLong() + "s";
-            name = nameShort + " with " + bestHand.get(2).getValueNameLong() + "-"
-                    + bestHand.get(3).getValueNameLong() + "-" + bestHand.get(4).getValueNameLong() + " kicker";
+            shortName = new StringBuilder(shortName).append(", ").append(bestHand.get(0).getValueNameLong()).append("s").toString();
+            name = new StringBuilder(shortName).append(" with ").append(bestHand.get(2).getValueNameLong())
+                    .append("-").append(bestHand.get(3).getValueNameLong()).append("-").append(bestHand.get(4).getValueNameLong())
+                    .append(" kicker").toString();
             points = 540000 + 2744* bestHand.get(0).getValue() + 196* bestHand.get(2).getValue() + 14* bestHand.get(3).getValue()
                     + bestHand.get(4).getValue();
         }
 
-        //HIGH CARD//////////////////////////////////////
+        //HIGH CARD//
         else {
-            nameShort = "High card";
-            Collections.sort(allCards, new CardComparator());
-            for(int i = 0; i < 5; i++)
-                bestHand.add(allCards.get(i));
+            shortName = "High card";
+            allCards.sort(Comparator.comparingInt(Card::getValue).reversed().thenComparing(Card::getSuit));
+            bestHand.addAll(allCards.stream().limit(5).collect(Collectors.toList()));
 
-            nameShort += " " + bestHand.get(0).getValueNameLong();
-            name = nameShort + " with " + bestHand.get(1).getValueNameLong() + "-"
-                    + bestHand.get(2).getValueNameLong() + "-" + bestHand.get(3).getValueNameLong() + "-"
-                    + bestHand.get(4).getValueNameLong() + " kicker";
+            shortName = new StringBuilder(shortName).append(" ").append(bestHand.get(0).getValueNameLong()).toString();
+            name = new StringBuilder(shortName).append(" with ").append(bestHand.get(1).getValueNameLong()).append("-")
+                    .append(bestHand.get(2).getValueNameLong()).append("-").append(bestHand.get(3).getValueNameLong()).append("-")
+                    .append(bestHand.get(4).getValueNameLong()).append(" kicker").toString();
             points = 38416* bestHand.get(0).getValue() + 2744* bestHand.get(1).getValue() + 196* bestHand.get(2).getValue()
                     + 14* bestHand.get(3).getValue() + bestHand.get(4).getValue();
         }
@@ -441,14 +332,19 @@ public class Hand {
     public void destroyHand() {
         points = 0;
         name = "";
-        nameShort = "";
-        maxSuit = 0;
-        suit = 0;
-        maxValue1 = 0;
-        value1 = 0;
-        maxValue2 = 0;
-        value2 = 0;
+        shortName = "";
+        maxCountOfSuitedCards = 0;
+        mostFrequentSuit = 0;
+        maxCountOfValues = 0;
+        mostFrequentValue = 0;
+        secondMaxCountOfValues = 0;
+        secondMostFrequentValue = 0;
         bestHand.clear();
         allCards.clear();
+    }
+
+    private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+        Set<Object> seen = ConcurrentHashMap.newKeySet();
+        return t -> seen.add(keyExtractor.apply(t));
     }
 }
