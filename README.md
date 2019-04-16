@@ -9,10 +9,8 @@ The idea is simple. There is up to seven cards which can build five-card hand. T
 There are a few variables which helps to describe what's going on these cards: how many cards in one suit there are, how many cards with the same value exist and what is this value. I also created classes which compare cards in different ways. It's worth pointing out that Ace can be put at two different values (as card above the King or below the Two).
 
 ## Things to do:
-- 'Board', 'Hand': make different names of hand in dependence of difference between best and second best hand
-- make a graphical interface (JavaFX)
-- create connection with a database (Hibernate)
-- make a 'Tournament' class
+- Complete GUI.
+- Rewrite card system to a set for optimizing algorithms.
 
 # Technical problems which I have dealt with
 
