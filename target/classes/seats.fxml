@@ -9,7 +9,7 @@
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 <VBox xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="sample.SeatsController"
+            fx:controller="pl.erfean.holdem.sample.SeatsController"
             prefHeight="250.0" prefWidth="250.0">
     <TableView fx:id="playersTableSeats" prefWidth="200">
         <columns>

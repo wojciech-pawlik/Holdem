@@ -11,7 +11,7 @@
       prefWidth="800.0"
       xmlns="http://javafx.com/javafx/8"
       xmlns:fx="http://javafx.com/fxml"
-      fx:controller="sample.Controller"
+      fx:controller="pl.erfean.holdem.sample.Controller"
       fx:id="mainPanel"
       stylesheets="@main.css">
    <children>

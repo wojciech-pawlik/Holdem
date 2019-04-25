@@ -8,7 +8,7 @@
 
 <DialogPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="sample.EditController"
+            fx:controller="pl.erfean.holdem.sample.EditController"
             prefHeight="160.0" prefWidth="280.0">
     <headerText>
         Fill in the new information for the new Contact
